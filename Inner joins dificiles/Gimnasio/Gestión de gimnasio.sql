@@ -1,15 +1,18 @@
 CREATE TABLE SOCIOS 
+
 (id_socio INT PRIMARY KEY, 
 nombre VARCHAR(50), 
 fecha_alta DATE);
+
 CREATE TABLE PLANES
   
 (id_plan INT PRIMARY KEY, 
 tipo VARCHAR(50), 
 costo DECIMAL(10,2));
+
 CREATE TABLE PAGOS
-(
-id_pago INT PRIMARY KEY, 
+
+(id_pago INT PRIMARY KEY, 
 id_socio INT, 
 id_plan INT, 
 monto DECIMAL(10,2), 
