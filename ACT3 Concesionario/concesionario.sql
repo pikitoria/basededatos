@@ -42,22 +42,21 @@ CREATE TABLE REPARACIONES (
 
 
 INSERT INTO CLIENTES (dni, nombre, apellidos, direccion, telefono) VALUES 
-('10', 'Carlos', 'Gomez', 'Av 1', '111'), ('20', 'Lucia', 'Paz', 'Av 2', '222'),
-('30', 'Marcos', 'Sosa', 'Av 3', '333'), ('40', 'Elena', 'Ruiz', 'Av 4', '444'),
-('50', 'Pedro', 'Díaz', 'Av 5', '555');
+('10435748', 'Bakugou', 'Kacchan', 'Av 1', '1111-9374'), ('20279374', 'Ana', 'Frozen', 'Av 2', '222-475'),
+('30498764', 'Giyuu', 'Tomioka', 'Av 3', '333-374'), ('40473676', 'Elsa', 'Frozen', 'Av 4', '444-847'),
+('50375904', 'Juan', 'Tatatito', 'Av 5', '555-3764');
 
 INSERT INTO COCHES (matricula, modelo, marca, color, tipo, kilometros, dni_cliente) VALUES 
 ('AAA111', 'Territory', 'Ford', 'Negro', 'Nuevo', '20', '95752916'), ('BBB222', 'Corolla', 'Toyota', 'Blanco', 'Nuevo', '0', '39859485'),
 ('AA1506', 'Veneno', 'Lamborghini', 'Negro', 'Nuevo', '20' , '95573013'), ('WEBO15', 'RS6', 'Mercedes', 'Negro', 'Nuevo', '0', '94854903'),
 ('BBB222', 'Hot wheels', 'Toyota', 'Rosa fluor', 'Nuevo', '0', '49761533');
 
-
 INSERT INTO MECANICOS ( dni, nombre, apellidos, fecha_contratacion, salario) VALUES
-('10989574', 'Carlos', 'Gomez', '23-08-1998', '4'), ('20345634', 'Lucia', 'Paz', 'Av 2', '20000'),
-('30256634', 'Marcos', 'Sosa', 'Av 3', '2'), ('40564535', 'Elena', 'Luanez', 'Av 4', '40000'),
-('50565423', 'Pedro', 'Díaz', 'Av 5', '3');
+('10989574', 'Carlos', 'Gomez', '23-08-1998', '4'), ('20345634', 'Lucia', 'Paz', '01-04-2012', '20000'),
+('30256634', 'Marcos', 'Sosa', '03-09-1999', '2'), ('40564535', 'Elena', 'Luanez', '03-07-2014', '40000'),
+('50565423', 'Pedro', 'Díaz', '02-08-1988', '3');
 
-INSERT INTO REPARACIONES (dni_mecanico, id_coche, fecha_reparacion, horas_trabajo) VALUES
-('10', 'Carlos', 'Gomez', '2-4-2026', '78'), ('20', 'Lucia', 'Paz', '23-10-2025', '2'),
-('30', 'Marcos', 'Sosa', '15-06-2026', '23'), ('40', 'Elena', 'Luanez', '07-8-2005', '4'),
-('50', 'Pedro', 'Díaz', '06-07-2025', '24');
+INSERT INTO REPARACIONES (dni_mecanico, fecha_reparacion, horas_trabajo) VALUES
+('10989574', '2-4-2026', '78'), ('20345634', '23-10-2025', '2'),
+('30256634', '15-06-2026', '23'), ('40564535', '07-8-2005', '4'),
+('50565423', '06-07-2025', '24');
