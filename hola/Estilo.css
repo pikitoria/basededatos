@@ -1,0 +1,31 @@
+body{
+    background-color: rgb(131, 178, 250);
+}
+
+h1{
+    color: rgb(9, 41, 184, 0.575); 
+}
+
+h2{
+    color: rgb(9, 41, 184, 0.575);
+}
+
+h2{
+    color: rgb(9, 41, 184, 0.575);
+}
+
+.presentacion h1 {
+    color: rgb(9, 41, 184, 0.575);
+}
+
+.titulo-seccion {
+    color: rgb(9, 41, 184, 0.575);
+}
+
+.tarjeta h3 {
+    color: rgb(9, 41, 184, 0.575);
+}
+
+.tarjeta-gusto h3 {
+    color: rgb(9, 41, 184, 0.575);
+}
