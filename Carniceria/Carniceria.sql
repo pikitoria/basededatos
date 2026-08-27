@@ -3,7 +3,7 @@ use Carniceria;
 
 CREATE TABLE Carniceros
  (
-    id_Carnicero INT AUTO_INCREMENT PRIMARY KEY,  b
+    id_Carnicero INT AUTO_INCREMENT PRIMARY KEY,
     FOREIGN KEY (id_Cliente) REFERENCES Clientes(id_Cliente),
     Nombre Varchar (20),
     Apellido Varchar (20)
@@ -46,3 +46,43 @@ INSERT INTO Cortes (id_Corte, Corte, Animal, Precio) VALUES (1, 'Tapa', 'Vaca', 
 INSERT INTO Pedidos (id_Pedido, id_Cliente, id_Carnicero, id_Corte, Fecha) VALUES (1, 1, 1, 1, '20-10-2023'), (2, 2, 2, 2, '15-06-2025'), (3, 3, 3, 3, '17-10-2009');
 INSERT INTO Pagos (id_Pago, Tipo_pago) VALUES (1, 'Digital'), (2, 'Efectivo'), (3, 'Tarjeta de credito');
 
+SELECT Corte, COUNT(*) AS Total
+FROM Pedido
+GROUP BY Corte
+HAVING COUNT(*) = (
+    SELECT MAX(conteo) 
+    FROM (SELECT COUNT(*) AS conteo FROM Pedido GROUP BY Corte) AS subquery
+);
+
+SELECT Nombre 
+FROM Cliente 
+WHERE ID_Clientes = (
+    SELECT ID_Clientes 
+    FROM Pedido 
+    GROUP BY ID_Clientes 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 1
+);
+
+
+SELECT Nombre, Apellido 
+FROM Carnicero 
+WHERE IDCarnicero = (
+    SELECT IDCarnicero 
+    FROM Pedido 
+    GROUP BY IDCarnicero 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 1
+);
+
+
+SELECT 
+    (SELECT C.Nombre FROM Cliente C WHERE C.ID_Clientes = P.ID_Clientes) AS Cliente,
+    P.Corte,
+    (SELECT Car.Nombre FROM Carnicero Car WHERE Car.ID_Carnicero = P.ID_Carnicero) AS Carnicero
+FROM Pedido P
+WHERE P.Precio = (SELECT MAX(Precio) FROM Pedido);
+
+SELECT DISTINCT Corte, 
+    (SELECT COUNT(*) FROM Pedido P2 WHERE P2.Corte = P1.Corte) AS Cantidad_Ventas
+FROM Pedido P1;
