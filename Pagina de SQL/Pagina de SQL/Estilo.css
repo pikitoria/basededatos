@@ -1,0 +1,16 @@
+body {
+    background-image: url("fondo.jpg");
+}
+
+body {
+    color: rgb(0, 225, 255);
+}
+
+.card {
+    color: rgb(4, 21, 255);
+}
+
+.card-img-top {
+    width: 100%;
+    height: 250px;
+}
