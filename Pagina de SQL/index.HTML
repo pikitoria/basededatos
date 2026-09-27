@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Teoría de SQL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Mi CSS -->
+    <link rel="stylesheet" href="Estilo.css">
+</head>
+
+<body>
+
+    <!-- MENÚ -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+
+        <div class="container">
+
+            <a class="navbar-brand" href="#">
+                Teoría de SQL
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sql">
+                            ¿Qué es SQL?
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#comandos">
+                            Comandos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#consultas">
+                            Consultas
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#relaciones">
+                            Relaciones
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#subconsultas">
+                            Subconsultas
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- PORTADA -->
+    <header class="hero">
+
+        <div class="container text-center">
+
+            <h1>
+                Teoría de <span>SQL 💻</span>
+            </h1>
+
+            <p>
+                Aprende los conceptos principales de SQL,
+                sus comandos, consultas, relaciones y subconsultas.
+            </p>
+
+            <a href="#sql" class="btn btn-principal">
+                Comenzar
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- ¿QUÉ ES SQL? -->
+    <section id="sql" class="seccion">
+
+        <div class="container">
+
+            <h2 class="titulo-seccion">
+                ¿Qué es SQL?
+            </h2>
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>SQL 🗄️</h3>
+
+                            <p>
+                                SQL significa
+                                <strong>Structured Query Language</strong>.
+                            </p>
+
+                            <p>
+                                Es un lenguaje que se utiliza para trabajar
+                                con bases de datos relacionales.
+                            </p>
+
+                            <p>
+                                Permite crear, consultar, modificar y eliminar
+                                información de una base de datos.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Conceptos importantes</h3>
+
+                            <ul>
+
+                                <li>
+                                    <strong>Base de datos:</strong>
+                                    conjunto de información.
+                                </li>
+
+                                <li>
+                                    <strong>Tabla:</strong>
+                                    lugar donde se guardan los datos.
+                                </li>
+
+                                <li>
+                                    <strong>Campo:</strong>
+                                    columna de una tabla.
+                                </li>
+
+                                <li>
+                                    <strong>Registro:</strong>
+                                    fila de una tabla.
+                                </li>
+
+                                <li>
+                                    <strong>Clave primaria:</strong>
+                                    identifica un registro.
+                                </li>
+
+                                <li>
+                                    <strong>Clave foránea:</strong>
+                                    relaciona dos tablas.
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- COMANDOS -->
+    <section id="comandos" class="seccion seccion-clara">
+
+        <div class="container">
+
+            <h2 class="titulo-seccion">
+                Comandos principales
+            </h2>
+
+            <div class="row">
+
+
+                <!-- SELECT -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>SELECT 🔎</h3>
+
+                            <p>
+                                Sirve para consultar información
+                                de una tabla.
+                            </p>
+
+                            <code>
+                                SELECT * FROM alumnos;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- INSERT -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>INSERT ➕</h3>
+
+                            <p>
+                                Sirve para agregar nuevos datos.
+                            </p>
+
+                            <code>
+                                INSERT INTO alumnos VALUES (1, 'Ana');
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- UPDATE -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>UPDATE ✏️</h3>
+
+                            <p>
+                                Sirve para modificar datos.
+                            </p>
+
+                            <code>
+                                UPDATE alumnos SET nombre='Ana';
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DELETE -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>DELETE 🗑️</h3>
+
+                            <p>
+                                Sirve para eliminar datos.
+                            </p>
+
+                            <code>
+                                DELETE FROM alumnos WHERE id=1;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CREATE -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>CREATE 🛠️</h3>
+
+                            <p>
+                                Sirve para crear tablas
+                                o bases de datos.
+                            </p>
+
+                            <code>
+                                CREATE TABLE alumnos (...);
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ALTER -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>ALTER 🔧</h3>
+
+                            <p>
+                                Sirve para modificar una tabla.
+                            </p>
+
+                            <code>
+                                ALTER TABLE alumnos ADD edad INT;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONSULTAS -->
+    <section id="consultas" class="seccion">
+
+        <div class="container">
+
+            <h2 class="titulo-seccion">
+                Consultas SQL 🔍
+            </h2>
+
+            <div class="row">
+
+
+                <!-- WHERE -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>WHERE</h3>
+
+                            <p>
+                                Se utiliza para poner una condición
+                                en una consulta.
+                            </p>
+
+                            <code>
+                                SELECT * FROM alumnos
+                                WHERE edad >= 18;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ORDER BY -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>ORDER BY</h3>
+
+                            <p>
+                                Sirve para ordenar los resultados.
+                            </p>
+
+                            <code>
+                                SELECT * FROM alumnos
+                                ORDER BY nombre ASC;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GROUP BY -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>GROUP BY</h3>
+
+                            <p>
+                                Sirve para agrupar registros
+                                que tienen valores iguales.
+                            </p>
+
+                            <code>
+                                SELECT curso, COUNT(*)
+                                FROM alumnos
+                                GROUP BY curso;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FUNCIONES -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Funciones 📊</h3>
+
+                            <ul>
+
+                                <li>
+                                    <strong>COUNT:</strong>
+                                    cuenta registros.
+                                </li>
+
+                                <li>
+                                    <strong>SUM:</strong>
+                                    realiza una suma.
+                                </li>
+
+                                <li>
+                                    <strong>AVG:</strong>
+                                    calcula un promedio.
+                                </li>
+
+                                <li>
+                                    <strong>MAX:</strong>
+                                    obtiene el máximo.
+                                </li>
+
+                                <li>
+                                    <strong>MIN:</strong>
+                                    obtiene el mínimo.
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RELACIONES -->
+    <section id="relaciones" class="seccion seccion-clara">
+
+        <div class="container">
+
+            <h2 class="titulo-seccion">
+                Relaciones entre tablas 🔗
+            </h2>
+
+            <div class="row">
+
+
+                <!-- UNO A UNO -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Uno a uno</h3>
+
+                            <p>
+                                Un registro de una tabla se relaciona
+                                con un solo registro de otra tabla.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- UNO A MUCHOS -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Uno a muchos</h3>
+
+                            <p>
+                                Un registro puede relacionarse
+                                con varios registros de otra tabla.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- JOIN -->
+                <div class="col-md-4">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>JOIN 🔗</h3>
+
+                            <p>
+                                Sirve para combinar información
+                                de dos o más tablas.
+                            </p>
+
+                            <code>
+                                SELECT *
+                                FROM alumnos
+                                INNER JOIN cursos;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SUBCONSULTAS -->
+    <section id="subconsultas" class="seccion">
+
+        <div class="container">
+
+            <h2 class="titulo-seccion">
+                Subconsultas 🔍
+            </h2>
+
+            <div class="row">
+
+
+                <!-- DEFINICIÓN -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>¿Qué es una subconsulta?</h3>
+
+                            <p>
+                                Una subconsulta es una consulta SQL
+                                que se encuentra dentro de otra consulta.
+                            </p>
+
+                            <p>
+                                La consulta interna obtiene información
+                                que utiliza la consulta principal.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EJEMPLO -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Ejemplo 💡</h3>
+
+                            <p>
+                                Buscar alumnos que tengan una edad
+                                mayor al promedio.
+                            </p>
+
+                            <code>
+                                SELECT nombre
+                                FROM alumnos
+                                WHERE edad > (
+                                SELECT AVG(edad)
+                                FROM alumnos
+                                );
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- WHERE -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Subconsulta con WHERE</h3>
+
+                            <p>
+                                Se puede utilizar una subconsulta
+                                dentro de WHERE.
+                            </p>
+
+                            <code>
+                                SELECT nombre
+                                FROM alumnos
+                                WHERE id_curso IN (
+                                SELECT id FROM cursos
+                                );
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FROM -->
+                <div class="col-md-6">
+
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <h3>Subconsulta con FROM</h3>
+
+                            <p>
+                                También se puede utilizar una subconsulta
+                                dentro de FROM.
+                            </p>
+
+                            <code>
+                                SELECT promedio
+                                FROM (
+                                SELECT AVG(edad) AS promedio
+                                FROM alumnos
+                                ) AS resultado;
+                            </code>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
