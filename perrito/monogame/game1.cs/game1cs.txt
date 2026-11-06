@@ -1,0 +1,230 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+
+namespace MascotaVirtual
+{
+    public class Game1 : Game
+    {
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+        SpriteFont letra;
+        Texture2D cuadrado;
+
+        // mi mascota
+        Mascota mascota = new Mascota("firulais", "perro");
+        Estructuras datos = new Estructuras();
+        Archivos archivos = new Archivos();
+        Algoritmos algoritmos = new Algoritmos();
+
+        // para el tiempo: cada 5 segundos baja la vida sola
+        float tiempo = 0;
+        string mensaje = "cuida a firulais!";
+        string pantalla = "juego"; // juego o fin
+        Random azar = new Random();
+
+        // botones simples, son rectangulos
+        // rectangle = x, y, ancho, alto
+        Rectangle botonAlimentar = new Rectangle(20, 350, 150, 40);
+        Rectangle botonJugar = new Rectangle(190, 350, 150, 40);
+        Rectangle botonAsear = new Rectangle(360, 350, 150, 40);
+        Rectangle botonDormir = new Rectangle(530, 350, 150, 40);
+
+        KeyboardState teclaAnterior;
+        MouseState mouseAnterior;
+
+        public Game1()
+        {
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
+
+        protected override void Initialize()
+        {
+            graphics.PreferredBackBufferWidth = 700;
+            graphics.PreferredBackBufferHeight = 450;
+            graphics.ApplyChanges();
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            // tenes que tener un spritefont que se llame "letra" en content
+            letra = Content.Load<SpriteFont>("letra");
+            // cuadrado blanco para dibujar barras, lo creo a mano
+            cuadrado = new Texture2D(GraphicsDevice, 1, 1);
+            cuadrado.SetData(new Color[] { Color.White });
+        }
+
+        // aplicar accion, usa la tabla de efectos de estructuras.cs
+        // id 0 = alimentar, 1 = jugar, 2 = asear, 3 = dormir
+        void HacerAccion(int id)
+        {
+            mascota.hambre += datos.efectos[id, 0];
+            mascota.diversion += datos.efectos[id, 1];
+            mascota.higiene += datos.efectos[id, 2];
+            mascota.energia += datos.efectos[id, 3];
+            mascota.salud += datos.efectos[id, 4];
+            mascota.Limitar();
+
+            // guardo en pila y en lista
+            datos.historial.Push(datos.acciones[id]);
+            datos.logs.AddLast(datos.acciones[id]);
+            archivos.GuardarTxt(datos.acciones[id]);
+            mensaje = "hiciste: " + datos.acciones[id];
+
+            RevisarFin();
+        }
+
+        // que pase el tiempo solo
+        void PasarTiempo()
+        {
+            mascota.hambre += 5;
+            mascota.diversion -= 5;
+            mascota.higiene -= 3;
+            mascota.energia -= 4;
+            if (mascota.hambre >= 90 || mascota.higiene <= 10)
+            {
+                mascota.salud -= 10;
+            }
+            mascota.Limitar();
+            RevisarFin();
+        }
+
+        // evento aleatorio
+        void EventoAleatorio()
+        {
+            int n = azar.Next(0, 2); // 0 o 1
+            if (n == 0)
+            {
+                mascota.salud -= 30;
+                mensaje = "oh no! se enfermo, salud -30";
+                datos.eventosPendientes.Enqueue("se enferma");
+            }
+            else
+            {
+                mascota.diversion += 20;
+                mensaje = "encontro un juguete! diversion +20";
+                datos.eventosPendientes.Enqueue("encuentra juguete");
+            }
+            mascota.Limitar();
+            RevisarFin();
+        }
+
+        void RevisarFin()
+        {
+            if (mascota.salud <= 0)
+            {
+                pantalla = "fin";
+                mensaje = "firulais murio...";
+                archivos.GuardarTxt("fin del juego");
+            }
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            // si esta en pantalla fin, solo con r reinicia
+            if (pantalla == "fin")
+            {
+                if (Keyboard.GetState().IsKeyDown(Keys.R))
+                {
+                    mascota = new Mascota("firulais", "perro");
+                    pantalla = "juego";
+                    mensaje = "de nuevo!";
+                }
+                base.Update(gameTime);
+                return;
+            }
+
+            // tiempo
+            tiempo += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (tiempo > 5)
+            {
+                tiempo = 0;
+                PasarTiempo();
+                // cada tanto, 1 de cada 4 veces, pasa un evento
+                if (azar.Next(0, 4) == 0) EventoAleatorio();
+            }
+
+            // teclado: 1, 2, 3, 4
+            KeyboardState tecla = Keyboard.GetState();
+            if (tecla.IsKeyDown(Keys.D1) && teclaAnterior.IsKeyUp(Keys.D1)) HacerAccion(0);
+            if (tecla.IsKeyDown(Keys.D2) && teclaAnterior.IsKeyUp(Keys.D2)) HacerAccion(1);
+            if (tecla.IsKeyDown(Keys.D3) && teclaAnterior.IsKeyUp(Keys.D3)) HacerAccion(2);
+            if (tecla.IsKeyDown(Keys.D4) && teclaAnterior.IsKeyUp(Keys.D4)) HacerAccion(3);
+            teclaAnterior = tecla;
+
+            // mouse: click en botones
+            MouseState mouse = Mouse.GetState();
+            if (mouse.LeftButton == ButtonState.Pressed && mouseAnterior.LeftButton == ButtonState.Released)
+            {
+                Point p = new Point(mouse.X, mouse.Y);
+                if (botonAlimentar.Contains(p)) HacerAccion(0);
+                if (botonJugar.Contains(p)) HacerAccion(1);
+                if (botonAsear.Contains(p)) HacerAccion(2);
+                if (botonDormir.Contains(p)) HacerAccion(3);
+            }
+            mouseAnterior = mouse;
+
+            base.Update(gameTime);
+        }
+
+        // dibuja una barra: fondo gris y adelante color
+        void DibujarBarra(int x, int y, int valor, Color color)
+        {
+            spriteBatch.Draw(cuadrado, new Rectangle(x, y, 200, 20), Color.Gray);
+            spriteBatch.Draw(cuadrado, new Rectangle(x, y, valor * 2, 20), color);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            spriteBatch.Begin();
+
+            if (pantalla == "fin")
+            {
+                spriteBatch.DrawString(letra, "fin del juego", new Vector2(200, 150), Color.White);
+                spriteBatch.DrawString(letra, mensaje, new Vector2(200, 200), Color.White);
+                spriteBatch.DrawString(letra, "apreta r para jugar de nuevo", new Vector2(200, 250), Color.White);
+                spriteBatch.End();
+                base.Draw(gameTime);
+                return;
+            }
+
+            spriteBatch.DrawString(letra, "mascota: " + mascota.nombre + " (" + mascota.tipo + ")", new Vector2(20, 20), Color.White);
+            spriteBatch.DrawString(letra, "estado: " + mascota.Estado(), new Vector2(20, 50), Color.White);
+            spriteBatch.DrawString(letra, mensaje, new Vector2(20, 80), Color.Yellow);
+
+            spriteBatch.DrawString(letra, "hambre: " + mascota.hambre, new Vector2(20, 120), Color.White);
+            DibujarBarra(150, 120, mascota.hambre, Color.Red);
+
+            spriteBatch.DrawString(letra, "diversion: " + mascota.diversion, new Vector2(20, 150), Color.White);
+            DibujarBarra(150, 150, mascota.diversion, Color.Green);
+
+            spriteBatch.DrawString(letra, "higiene: " + mascota.higiene, new Vector2(20, 180), Color.White);
+            DibujarBarra(150, 180, mascota.higiene, Color.Cyan);
+
+            spriteBatch.DrawString(letra, "energia: " + mascota.energia, new Vector2(20, 210), Color.White);
+            DibujarBarra(150, 210, mascota.energia, Color.Orange);
+
+            spriteBatch.DrawString(letra, "salud: " + mascota.salud, new Vector2(20, 240), Color.White);
+            DibujarBarra(150, 240, mascota.salud, Color.Pink);
+
+            spriteBatch.DrawString(letra, "1 o click = alimentar", new Vector2(20, 350), Color.White);
+            spriteBatch.DrawString(letra, "2 o click = jugar", new Vector2(190, 350), Color.White);
+            spriteBatch.DrawString(letra, "3 o click = asear", new Vector2(360, 350), Color.White);
+            spriteBatch.DrawString(letra, "4 o click = dormir", new Vector2(530, 350), Color.White);
+            spriteBatch.DrawString(letra, "cada 5 seg baja solo, cuidado!", new Vector2(20, 410), Color.Yellow);
+
+            spriteBatch.End();
+            base.Draw(gameTime);
+        }
+    }
+}
