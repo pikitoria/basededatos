@@ -1,0 +1,65 @@
+
+// estructuras.cs
+// aca estan todas las estructuras que pide la consigna
+
+using System;
+using System.Collections.Generic;
+
+namespace MascotaVirtual
+{
+    public class Estructuras
+    {
+        // 1. array 1d = lista simple, un solo renglon
+        // guarda los nombres de las acciones
+        public string[] acciones = new string[4] { "alimentar", "jugar", "asear", "dormir" };
+
+        // 2. array 2d = tabla, filas y columnas
+        // fila = accion, columna = efecto hambre, diversion, higiene, energia, salud
+        // es lo mismo que tu tabla actiontypes pero en c#
+        public int[,] efectos = new int[4, 5]
+        {
+            { -30, 0, 0, 0, 10 },   // alimentar
+            { 10, 40, -10, -20, 5 }, // jugar
+            { 0, 0, 50, -10, 5 },    // asear
+            { -10, 0, 0, 50, 10 }    // dormir
+        };
+
+        // 3. pila = stack, lo ultimo que entra es lo primero que sale
+        // como una pila de platos, sirve para deshacer
+        // push = meter, pop = sacar, peek = mirar sin sacar
+        public Stack<string> historial = new Stack<string>();
+
+        // 4. cola = queue, lo primero que entra es lo primero que sale
+        // como la fila del super, sirve para eventos que esperan
+        // enqueue = meter, dequeue = sacar
+        public Queue<string> eventosPendientes = new Queue<string>();
+
+        // 5. lista enlazada = linkedlist, no tiene tamaño fijo
+        // sirve para guardar los logs
+        public LinkedList<string> logs = new LinkedList<string>();
+
+        // 6. lista normal = list, la mas facil
+        public List<Mascota> mascotas = new List<Mascota>();
+
+        public void Probar()
+        {
+            // pila
+            historial.Push("jugar");
+            historial.Push("alimentar");
+            string ultimo = historial.Pop(); // saca "alimentar"
+
+            // cola
+            eventosPendientes.Enqueue("se enferma");
+            eventosPendientes.Enqueue("encuentra juguete");
+            string primero = eventosPendientes.Dequeue(); // saca "se enferma"
+
+            // lista enlazada
+            logs.AddLast("sesion 1 empezo");
+            logs.AddLast("accion alimentar");
+
+            // lista normal
+            mascotas.Add(new Mascota("firulais", "perro"));
+            mascotas.Add(new Mascota("michi", "gato"));
+        }
+    }
+}
