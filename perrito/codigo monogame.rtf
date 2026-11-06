@@ -1,1 +1,108 @@
-{\rtf1}
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace petcareMonoGame;
+
+public class Game1 : Game
+{
+    private GraphicsDeviceManager _graphics;
+    private SpriteBatch _spriteBatch;
+
+    Texture2D perritoFrente, perritoAtras, perritoIzquierdo, perritoDerecho;
+    Texture2D perritoActual;
+
+    Vector2 posicion = new Vector2(100, 100);
+    const float velocidad = 5f;
+    const int alturaPerrito = 150; // alto en pantalla; el ancho se calcula solo
+
+    KeyboardState teclaActual;
+
+    const int alto_pantalla = 600;
+    const int ancho_pantalla = 800;
+
+    public Game1()
+    {
+        _graphics = new GraphicsDeviceManager(this);
+        Content.RootDirectory = "Content";
+        IsMouseVisible = true;
+        _graphics.PreferredBackBufferWidth = ancho_pantalla;
+        _graphics.PreferredBackBufferHeight = alto_pantalla;
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
+    }
+
+    protected override void LoadContent()
+    {
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // Nombres SIN extensión, iguales a los del MGCB Editor
+        perritoFrente    = Content.Load<Texture2D>("perritodefrente");
+        perritoAtras     = Content.Load<Texture2D>("perritoAtras");
+        perritoIzquierdo = Content.Load<Texture2D>("perritodecostadoizquierdo");
+        perritoDerecho   = Content.Load<Texture2D>("perritodecostadopderecho");
+
+        perritoActual = perritoFrente;
+    }
+
+    protected override void Update(GameTime gameTime)
+    {
+        teclaActual = Keyboard.GetState();
+
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+            || teclaActual.IsKeyDown(Keys.Escape))
+            Exit();
+
+        if (teclaActual.IsKeyDown(Keys.Left))
+        {
+            posicion.X -= velocidad;
+            perritoActual = perritoIzquierdo;
+        }
+        else if (teclaActual.IsKeyDown(Keys.Right))
+        {
+            posicion.X += velocidad;
+            perritoActual = perritoDerecho;
+        }
+        else if (teclaActual.IsKeyDown(Keys.Up))
+        {
+            posicion.Y -= velocidad;
+            perritoActual = perritoAtras;
+        }
+        else if (teclaActual.IsKeyDown(Keys.Down))
+        {
+            posicion.Y += velocidad;
+            perritoActual = perritoFrente;
+        }
+
+        // Limitar al perrito dentro de la ventana
+        Rectangle r = ObtenerRectangulo();
+        posicion.X = MathHelper.Clamp(posicion.X, 0, ancho_pantalla - r.Width);
+        posicion.Y = MathHelper.Clamp(posicion.Y, 0, alto_pantalla - r.Height);
+
+        base.Update(gameTime);
+    }
+
+    // Mantiene la proporción de cada imagen (las de costado son más anchas)
+    private Rectangle ObtenerRectangulo()
+    {
+        float escala = (float)alturaPerrito / perritoActual.Height;
+        int ancho = (int)(perritoActual.Width * escala);
+        return new Rectangle((int)posicion.X, (int)posicion.Y, ancho, alturaPerrito);
+    }
+
+    protected override void Draw(GameTime gameTime)
+    {
+        GraphicsDevice.Clear(Color.White);
+
+        // PointClamp evita que el pixel art se vea borroso al escalar
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Draw(perritoActual, ObtenerRectangulo(), Color.White);
+        _spriteBatch.End();
+
+        base.Draw(gameTime);
+    }
+}
