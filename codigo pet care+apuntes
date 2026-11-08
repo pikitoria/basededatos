@@ -1,0 +1,462 @@
+-- =====================================================
+-- CREACIÓN DE LA BASE DE DATOS
+-- =====================================================
+
+-- Crea la base de datos
+CREATE DATABASE mascotavirtual;
+
+-- Selecciona la base de datos para trabajar
+USE mascotavirtual;
+
+
+-- =====================================================
+-- TABLA PLAYERS
+-- =====================================================
+
+CREATE TABLE players (
+
+    -- ID único del jugador
+    IDplayer INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Nombre del jugador
+    nombre VARCHAR(50) NOT NULL,
+
+    -- Email único
+    email VARCHAR(100) UNIQUE NOT NULL
+
+);
+
+
+-- =====================================================
+-- TABLA PETS
+-- =====================================================
+
+CREATE TABLE pets (
+
+    -- ID único de la mascota
+    IDpet INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Dueño de la mascota
+    IDplayer INT NOT NULL,
+
+    -- Nombre de la mascota
+    nombre VARCHAR(50) NOT NULL,
+
+    -- Tipo de mascota
+    tipo VARCHAR(30) NOT NULL,
+
+    -- Fecha de creación
+    fecha_creacion DATE NOT NULL,
+
+    -- Clave foránea que relaciona mascota y jugador
+    FOREIGN KEY (IDplayer)
+    REFERENCES players(IDplayer)
+
+);
+
+
+-- =====================================================
+-- TABLA SESSIONS
+-- =====================================================
+
+CREATE TABLE sessions (
+
+    -- ID de la sesión
+    IDsession INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Mascota que juega esa sesión
+    IDpet INT NOT NULL,
+
+    -- Fecha y hora de inicio
+    inicio DATETIME NOT NULL,
+
+    -- Fecha y hora de finalización
+    fin DATETIME,
+
+    -- Duración en minutos
+    duracion INT,
+
+    -- Relación con pets
+    FOREIGN KEY (IDpet)
+    REFERENCES pets(IDpet)
+
+);
+
+
+-- =====================================================
+-- TABLA PETSTATELOGS
+-- =====================================================
+
+CREATE TABLE petstatelogs (
+
+    -- Registro de estado
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Sesión correspondiente
+    IDsession INT NOT NULL,
+
+    -- Momento del registro
+    timestamp DATETIME NOT NULL,
+
+    -- Valores entre 0 y 100
+    hambre INT CHECK(hambre BETWEEN 0 AND 100),
+
+    diversion INT CHECK(diversion BETWEEN 0 AND 100),
+
+    higiene INT CHECK(higiene BETWEEN 0 AND 100),
+
+    energia INT CHECK(energia BETWEEN 0 AND 100),
+
+    salud INT CHECK(salud BETWEEN 0 AND 100),
+
+    -- Relación con sessions
+    FOREIGN KEY (IDsession)
+    REFERENCES sessions(IDsession)
+
+);
+
+
+-- =====================================================
+-- TABLA ACTIONTYPES
+-- =====================================================
+
+CREATE TABLE actiontypes (
+
+    -- ID de la acción
+    IDaction INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Nombre de la acción
+    nombre VARCHAR(50) NOT NULL,
+
+    -- Efectos que produce
+    efecto_hambre INT,
+    efecto_diversion INT,
+    efecto_higiene INT,
+    efecto_energia INT,
+    efecto_salud INT
+
+);
+
+
+-- =====================================================
+-- TABLA ACTIONLOGS
+-- =====================================================
+
+CREATE TABLE actionlogs (
+
+    -- Registro de acciones realizadas
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Sesión donde ocurrió
+    IDsession INT NOT NULL,
+
+    -- Acción realizada
+    IDaction INT NOT NULL,
+
+    -- Fecha y hora
+    timestamp DATETIME NOT NULL,
+
+    -- Relaciones
+    FOREIGN KEY (IDsession)
+    REFERENCES sessions(IDsession),
+
+    FOREIGN KEY (IDaction)
+    REFERENCES actiontypes(IDaction)
+
+);
+
+
+-- =====================================================
+-- TABLA EVENTS
+-- =====================================================
+
+CREATE TABLE events (
+
+    -- Evento aleatorio
+    IDevent INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Nombre del evento
+    nombre VARCHAR(50) NOT NULL,
+
+    -- Descripción del efecto
+    efecto VARCHAR(100)
+
+);
+
+
+-- =====================================================
+-- TABLA EVENTLOGS
+-- =====================================================
+
+CREATE TABLE eventlogs (
+
+    -- Registro de eventos
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Sesión
+    IDsession INT NOT NULL,
+
+    -- Evento ocurrido
+    IDevent INT NOT NULL,
+
+    -- Momento del evento
+    timestamp DATETIME NOT NULL,
+
+    FOREIGN KEY (IDsession)
+    REFERENCES sessions(IDsession),
+
+    FOREIGN KEY (IDevent)
+    REFERENCES events(IDevent)
+
+);
+
+
+-- =====================================================
+-- TABLA SESSIONRESULTS
+-- =====================================================
+
+CREATE TABLE sessionresults (
+
+    -- Resultado de la sesión
+    IDresult INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Sesión evaluada
+    IDsession INT NOT NULL,
+
+    -- Promedio de felicidad
+    felicidad_promedio INT,
+
+    -- Duración total
+    duracion_total INT,
+
+    -- Estado final
+    estado_final VARCHAR(30),
+
+    FOREIGN KEY (IDsession)
+    REFERENCES sessions(IDsession)
+
+);
+
+
+-- =====================================================
+-- DATOS DE PRUEBA
+-- =====================================================
+
+-- Jugadores
+
+INSERT INTO players (nombre,email)
+VALUES
+('luciana','luciana@mail.com'),
+('juan','juan@mail.com');
+
+
+-- Mascotas
+
+INSERT INTO pets
+(IDplayer,nombre,tipo,fecha_creacion)
+VALUES
+(1,'firulais','perro','2026-08-01'),
+(2,'michi','gato','2026-08-02');
+
+
+-- Sesiones
+
+INSERT INTO sessions
+(IDpet,inicio,fin,duracion)
+VALUES
+(1,'2026-08-05 10:00:00',
+'2026-08-05 12:00:00',120),
+
+(2,'2026-08-05 14:00:00',
+'2026-08-05 15:30:00',90);
+
+
+-- Tipos de acciones
+
+INSERT INTO actiontypes
+(nombre,efecto_hambre,
+efecto_diversion,
+efecto_higiene,
+efecto_energia,
+efecto_salud)
+VALUES
+('alimentar',-30,0,0,0,10),
+
+('jugar',10,40,-10,-20,5),
+
+('asear',0,0,50,-10,5),
+
+('dormir',-10,0,0,50,10);
+
+
+-- Eventos
+
+INSERT INTO events
+(nombre,efecto)
+VALUES
+('se enferma','salud -30'),
+('encuentra juguete','diversion +20');
+
+
+-- =====================================================
+-- PROCEDIMIENTO PRINCIPAL
+-- =====================================================
+
+CREATE PROCEDURE sp_realizaraccion(
+
+    -- ID de sesión
+    IN p_idsession INT,
+
+    -- Acción a ejecutar
+    IN p_idaction INT,
+
+    -- Mensaje de salida
+    OUT p_mensaje VARCHAR(100)
+
+)
+
+BEGIN
+
+    -- Obtiene el estado actual de la mascota.
+
+    -- Verifica que exista la sesión.
+
+    -- Verifica que exista la acción.
+
+    -- Busca cuánto modifica cada acción.
+
+    -- Obtiene el último estado guardado.
+
+    -- Si no existe estado,
+    -- usa 50 como valor inicial.
+
+    -- Si la mascota tiene salud 0
+    -- genera un error.
+
+    -- Actualiza hambre, energía,
+    -- diversión, salud e higiene.
+
+    -- Usa GREATEST y LEAST
+    -- para que nunca bajen de 0
+    -- ni superen 100.
+
+    -- Guarda la acción realizada.
+
+    -- Guarda el nuevo estado.
+
+    -- Devuelve un mensaje final.
+
+END;
+
+
+-- =====================================================
+-- PROCEDIMIENTOS SIMPLES
+-- =====================================================
+
+-- Alimentar
+-- Ejecuta la acción 1
+
+sp_alimentar()
+
+
+-- Jugar
+-- Ejecuta la acción 2
+
+sp_jugar()
+
+
+-- Asear
+-- Ejecuta la acción 3
+
+sp_asear()
+
+
+-- Dormir
+-- Ejecuta la acción 4
+
+sp_dormir()
+
+
+-- =====================================================
+-- PASO DEL TIEMPO
+-- =====================================================
+
+sp_pasartiempo()
+
+-- Simula el paso del tiempo.
+
+-- Aumenta hambre.
+
+-- Reduce diversión.
+
+-- Reduce higiene.
+
+-- Reduce energía.
+
+-- Si los valores son críticos,
+-- también reduce la salud.
+
+-- Guarda el nuevo estado.
+
+
+-- =====================================================
+-- INICIAR SESIÓN DE JUEGO
+-- =====================================================
+
+sp_iniciarsesion()
+
+-- Verifica que la mascota exista.
+
+-- Crea una sesión nueva.
+
+-- Obtiene automáticamente el último ID.
+
+-- Genera un estado inicial:
+
+-- hambre = 50
+-- diversion = 50
+-- higiene = 50
+-- energia = 50
+-- salud = 80
+
+-- Crea resultado inicial.
+
+-- Devuelve mensaje:
+-- "sesion creada"
+
+
+-- =====================================================
+-- ESTADÍSTICAS
+-- =====================================================
+
+sp_estadisticas()
+
+-- Cuenta cuántas sesiones existen.
+
+-- Calcula el promedio de felicidad.
+
+-- AVG = promedio.
+
+-- Devuelve ambos resultados.
+
+
+-- =====================================================
+-- EVENTOS
+-- =====================================================
+
+sp_aplicarevento()
+
+-- Registra un evento aleatorio.
+
+-- Evento 1:
+-- Se enferma.
+-- Reduce salud en 30.
+
+-- Evento 2:
+-- Encuentra juguete.
+-- Aumenta diversión en 20.
+
+-- Guarda el nuevo estado.
+
+-- Devuelve:
+-- "evento aplicado"
