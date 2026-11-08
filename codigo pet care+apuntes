@@ -1,118 +1,178 @@
+-- =====================================================
+-- CREACIÓN DE LA BASE DE DATOS
+-- =====================================================
 
-
+-- Crea la base de datos principal del proyecto
 CREATE DATABASE mascotavirtual;
+
+-- Selecciona la base de datos para trabajar en ella
 USE mascotavirtual;
+
+-- =====================================================
+-- TABLA PLAYERS
+-- Guarda la información de los jugadores
+-- =====================================================
 
 CREATE TABLE players(
 
+    -- Identificador único del jugador
     IDplayer INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Nombre del jugador
     nombre VARCHAR(50) NOT NULL,
 
+    -- Correo electrónico único
     email VARCHAR(100) UNIQUE NOT NULL
 
 );
 
-
+-- =====================================================
+-- TABLA PETS
+-- Guarda las mascotas de cada jugador
+-- =====================================================
 
 CREATE TABLE pets(
 
+    -- Identificador único de la mascota
     IDpet INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Jugador dueño de la mascota
     IDplayer INT NOT NULL,
 
+    -- Nombre de la mascota
     nombre VARCHAR(50) NOT NULL,
 
+    -- Tipo de mascota (perro, gato, etc.)
     tipo VARCHAR(30) NOT NULL,
 
+    -- Fecha de creación de la mascota
     fecha_creacion DATE NOT NULL,
 
+    -- Relación con la tabla players
     FOREIGN KEY(IDplayer)
     REFERENCES players(IDplayer)
 
 );
 
--- SESSIONS
--- Partidas de juego
+-- Un jugador puede tener varias mascotas
+-- PLAYER 1 ---- N PETS
 
+-- =====================================================
+-- TABLA SESSIONS
+-- Guarda las partidas realizadas
+-- =====================================================
 
 CREATE TABLE sessions(
 
+    -- Identificador de la sesión
     IDsession INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Mascota asociada a la sesión
     IDpet INT NOT NULL,
 
+    -- Fecha y hora de inicio
     inicio DATETIME NOT NULL,
 
+    -- Fecha y hora de finalización
     fin DATETIME,
 
+    -- Duración total en minutos
     duracion INT,
 
+    -- Relación con la mascota
     FOREIGN KEY(IDpet)
     REFERENCES pets(IDpet)
 
 );
 
--- PETSTATELOGS
--- Estados históricos de la mascota
+-- Una mascota puede tener muchas sesiones
+-- PET 1 ---- N SESSIONS
 
+-- =====================================================
+-- TABLA PETSTATELOGS
+-- Guarda el estado histórico de la mascota
+-- =====================================================
 
 CREATE TABLE petstatelogs(
 
+    -- Identificador del registro
     IDlog INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Sesión relacionada
     IDsession INT NOT NULL,
 
+    -- Momento en que se registró el estado
     timestamp DATETIME NOT NULL,
 
+    -- Nivel de hambre (0 a 100)
     hambre INT CHECK(hambre BETWEEN 0 AND 100),
 
+    -- Nivel de diversión (0 a 100)
     diversion INT CHECK(diversion BETWEEN 0 AND 100),
 
+    -- Nivel de higiene (0 a 100)
     higiene INT CHECK(higiene BETWEEN 0 AND 100),
 
+    -- Nivel de energía (0 a 100)
     energia INT CHECK(energia BETWEEN 0 AND 100),
 
+    -- Nivel de salud (0 a 100)
     salud INT CHECK(salud BETWEEN 0 AND 100),
 
+    -- Relación con la sesión
     FOREIGN KEY(IDsession)
     REFERENCES sessions(IDsession)
 
 );
 
--- ACTIONTYPES
--- Acciones posibles
+-- Permite registrar la evolución de la mascota
+-- durante toda la partida.
+
+-- =====================================================
+-- TABLA ACTIONTYPES
+-- Define las acciones disponibles en el juego
+-- =====================================================
 
 CREATE TABLE actiontypes(
 
+    -- Identificador de la acción
     IDaction INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Nombre de la acción
     nombre VARCHAR(50) NOT NULL,
 
+    -- Efectos que provoca sobre la mascota
     efecto_hambre INT,
-
     efecto_diversion INT,
-
     efecto_higiene INT,
-
     efecto_energia INT,
-
     efecto_salud INT
 
 );
 
--- ACTIONLOGS
--- Historial de acciones
+-- Ejemplos:
+-- Alimentar
+-- Jugar
+-- Dormir
+-- Asear
 
+-- =====================================================
+-- TABLA ACTIONLOGS
+-- Historial de acciones realizadas
+-- =====================================================
 
 CREATE TABLE actionlogs(
 
+    -- Identificador del registro
     IDlog INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Sesión donde ocurrió la acción
     IDsession INT NOT NULL,
 
+    -- Acción realizada
     IDaction INT NOT NULL,
 
+    -- Fecha y hora de ejecución
     timestamp DATETIME NOT NULL,
 
     FOREIGN KEY(IDsession)
@@ -123,30 +183,48 @@ CREATE TABLE actionlogs(
 
 );
 
--- EVENTS
--- Eventos aleatorios
+-- Permite saber qué hizo el jugador
+-- durante cada partida.
+
+-- =====================================================
+-- TABLA EVENTS
+-- Eventos aleatorios del juego
+-- =====================================================
 
 CREATE TABLE events(
 
+    -- Identificador del evento
     IDevent INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Nombre del evento
     nombre VARCHAR(50) NOT NULL,
 
+    -- Descripción del efecto
     efecto VARCHAR(100)
 
 );
 
--- EVENTLOGS
--- Historial de eventos
+-- Ejemplos:
+-- Se enferma
+-- Encuentra juguete
+
+-- =====================================================
+-- TABLA EVENTLOGS
+-- Historial de eventos ocurridos
+-- =====================================================
 
 CREATE TABLE eventlogs(
 
+    -- Identificador del registro
     IDlog INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Sesión en que ocurrió
     IDsession INT NOT NULL,
 
+    -- Evento ocurrido
     IDevent INT NOT NULL,
 
+    -- Fecha y hora del evento
     timestamp DATETIME NOT NULL,
 
     FOREIGN KEY(IDsession)
@@ -157,21 +235,29 @@ CREATE TABLE eventlogs(
 
 );
 
+-- Guarda todos los eventos aleatorios
+-- producidos durante una sesión.
+
 -- =====================================================
--- SESSIONRESULTS
--- Resultados finales
+-- TABLA SESSIONRESULTS
+-- Resultado final de cada partida
 -- =====================================================
 
 CREATE TABLE sessionresults(
 
+    -- Identificador del resultado
     IDresult INT AUTO_INCREMENT PRIMARY KEY,
 
+    -- Sesión evaluada
     IDsession INT NOT NULL,
 
+    -- Promedio de felicidad de la mascota
     felicidad_promedio INT,
 
+    -- Duración total de la partida
     duracion_total INT,
 
+    -- Estado final de la mascota
     estado_final VARCHAR(30),
 
     FOREIGN KEY(IDsession)
@@ -179,8 +265,12 @@ CREATE TABLE sessionresults(
 
 );
 
+-- Resume cómo terminó la mascota
+-- al finalizar la partida.
+
 -- =====================================================
 -- DATOS DE PRUEBA
+-- Se cargan registros iniciales para realizar pruebas
 -- =====================================================
 
 INSERT INTO players(nombre,email)
@@ -188,15 +278,24 @@ VALUES
 ('luciana','luciana@mail.com'),
 ('juan','juan@mail.com');
 
+-- Se crean dos jugadores de ejemplo
+
+
 INSERT INTO pets(IDplayer,nombre,tipo,fecha_creacion)
 VALUES
 (1,'firulais','perro','2026-08-01'),
 (2,'michi','gato','2026-08-02');
 
+-- Se crean dos mascotas asociadas a jugadores
+
+
 INSERT INTO sessions(IDpet,inicio,fin,duracion)
 VALUES
 (1,'2026-08-05 10:00:00','2026-08-05 12:00:00',120),
 (2,'2026-08-05 14:00:00','2026-08-05 15:30:00',90);
+
+-- Se registran dos partidas de ejemplo
+
 
 INSERT INTO actiontypes
 (nombre,efecto_hambre,efecto_diversion,
@@ -207,324 +306,228 @@ VALUES
 ('asear',0,0,50,-10,5),
 ('dormir',-10,0,0,50,10);
 
+-- Configuración de efectos de las acciones:
+-- Alimentar reduce hambre y mejora salud.
+-- Jugar aumenta diversión pero consume energía.
+-- Asear mejora higiene.
+-- Dormir recupera energía.
+
 INSERT INTO events(nombre,efecto)
 VALUES
 ('se enferma','salud -30'),
 ('encuentra juguete','diversion +20');
 
+-- Eventos aleatorios disponibles
+
 -- =====================================================
 -- CONSULTAS BÁSICAS
 -- =====================================================
 
--- Ver jugadores
+-- Mostrar todos los jugadores
 SELECT * FROM players;
 
--- Ver mascotas
+-- Mostrar todas las mascotas
 SELECT * FROM pets;
 
--- Ver sesiones
+-- Mostrar todas las sesiones
 SELECT * FROM sessions;
 
--- Mascotas con dueño
+-- Mostrar mascota y su dueño utilizando INNER JOIN
 SELECT p.nombre AS mascota,
        pl.nombre AS jugador
 FROM pets p
 INNER JOIN players pl
 ON p.IDplayer = pl.IDplayer;
 
--- Contar mascotas
+-- Cuenta la cantidad total de mascotas
 SELECT COUNT(*) AS total_mascotas
 FROM pets;
 
--- Acciones disponibles
-SELECT *
-FROM actiontypes;
+-- Mostrar acciones disponibles
+SELECT * FROM actiontypes;
 
--- Eventos disponibles
-SELECT *
-FROM events;
+-- Mostrar eventos disponibles
+SELECT * FROM events;
 
--- Resultados finales
-SELECT *
-FROM sessionresults;
+-- Mostrar resultados finales
+SELECT * FROM sessionresults;
 
--- Historial de mascotas
-SELECT *
-FROM petstatelogs;
+-- Mostrar historial de estados
+SELECT * FROM petstatelogs;
 
-DELIMITER //
+-- =====================================================
+-- PROCEDIMIENTO GENERAL
+-- =====================================================
 
 CREATE PROCEDURE sp_realizaraccion(
 
+    -- Sesión donde se ejecuta la acción
     IN p_idsession INT,
 
+    -- Acción a realizar
     IN p_idaction INT,
 
+    -- Mensaje de salida
     OUT p_mensaje VARCHAR(100)
 
 )
 
 BEGIN
 
-    -- Actualiza estado de mascota
-    -- según la acción realizada
+    -- Aquí debería implementarse la lógica principal
+    -- para modificar los atributos de la mascota
+    -- según la acción seleccionada.
 
-END//
+END;
 
-DELIMITER ;
+-- =====================================================
+-- PROCEDIMIENTOS DE ACCIONES
+-- =====================================================
 
+-- Alimentar
+-- Llama al procedimiento principal
+-- utilizando la acción N°1
 
-DELIMITER //
-
-CREATE PROCEDURE sp_alimentar(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
+CREATE PROCEDURE sp_alimentar(...)
 BEGIN
+    CALL sp_realizaraccion(
+    p_idsession,
+    1,
+    p_mensaje
+    );
+END;
 
-CALL sp_realizaraccion(
-p_idsession,
-1,
-p_mensaje
-);
+-- Jugar
+-- Ejecuta la acción N°2
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_jugar(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
+CREATE PROCEDURE sp_jugar(...)
 BEGIN
+    CALL sp_realizaraccion(
+    p_idsession,
+    2,
+    p_mensaje
+    );
+END;
 
-CALL sp_realizaraccion(
-p_idsession,
-2,
-p_mensaje
-);
+-- Asear
+-- Ejecuta la acción N°3
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_asear(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
+CREATE PROCEDURE sp_asear(...)
 BEGIN
+    CALL sp_realizaraccion(
+    p_idsession,
+    3,
+    p_mensaje
+    );
+END;
 
-CALL sp_realizaraccion(
-p_idsession,
-3,
-p_mensaje
-);
+-- Dormir
+-- Ejecuta la acción N°4
 
-END//
-
-DELIMITER ;
-DELIMITER //
-
-CREATE PROCEDURE sp_dormir(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
+CREATE PROCEDURE sp_dormir(...)
 BEGIN
+    CALL sp_realizaraccion(
+    p_idsession,
+    4,
+    p_mensaje
+    );
+END;
 
-CALL sp_realizaraccion(
-p_idsession,
-4,
-p_mensaje
-);
+-- =====================================================
+-- PROCEDIMIENTOS COMPLEMENTARIOS
+-- =====================================================
 
-END//
-
-DELIMITER ;
-DELIMITER //
-
-CREATE PROCEDURE sp_veterinario(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Veterinario
+-- Simula atención médica
 
 SET p_mensaje='mascota atendida por veterinario';
 
-END//
-
-DELIMITER ;
-DELIMITER //
-
-CREATE PROCEDURE sp_pasear(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Pasear
+-- Simula salida al exterior
 
 SET p_mensaje='la mascota salio a pasear';
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_darpremio(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Dar premio
+-- Recompensa a la mascota
 
 SET p_mensaje='premio entregado';
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_banar(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Bañar
+-- Limpia la mascota
 
 SET p_mensaje='mascota bañada';
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_daragua(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Dar agua
+-- Hidrata a la mascota
 
 SET p_mensaje='la mascota tomo agua';
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_entrenar(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Entrenar
+-- Simula entrenamiento
 
 SET p_mensaje='la mascota entreno';
 
-END//
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE PROCEDURE sp_abrazar(
-
-IN p_idsession INT,
-OUT p_mensaje VARCHAR(100)
-
-)
-
-BEGIN
+-- Abrazar
+-- Incrementa el afecto
 
 SET p_mensaje='la mascota recibio cariño';
 
-END//
+-- Actualmente estos procedimientos solamente
+-- muestran mensajes y no modifican datos.
 
-DELIMITER ;
+-- =====================================================
+-- EVENTO ALEATORIO
+-- =====================================================
 
-
-DELIMITER //
-
-CREATE PROCEDURE sp_eventoaleatorio(
-
-OUT p_evento VARCHAR(100)
-
-)
+CREATE PROCEDURE sp_eventoaleatorio(...)
 
 BEGIN
 
-DECLARE v_num INT;
+    DECLARE v_num INT;
 
-SET v_num =
-FLOOR(1 + RAND()*3);
+    -- Genera un número aleatorio entre 1 y 3
+    SET v_num = FLOOR(1 + RAND()*3);
 
-IF v_num = 1 THEN
+    IF v_num = 1 THEN
 
-SET p_evento =
-'encontro comida';
+        SET p_evento =
+        'encontro comida';
 
-ELSEIF v_num = 2 THEN
+    ELSEIF v_num = 2 THEN
 
-SET p_evento =
-'encontro juguete';
+        SET p_evento =
+        'encontro juguete';
 
-ELSE
+    ELSE
 
-SET p_evento =
-'se ensucio jugando';
+        SET p_evento =
+        'se ensucio jugando';
 
-END IF;
+    END IF;
 
-END//
+END;
 
-DELIMITER ;
+-- Se utiliza para generar situaciones
+-- inesperadas durante la partida.
 
-DELIMITER //
+-- =====================================================
+-- CÁLCULO DE FELICIDAD
+-- =====================================================
 
 CREATE PROCEDURE sp_calcularfelicidad(
 
 IN p_idsession INT,
-
 OUT p_felicidad DECIMAL(5,2)
 
 )
 
 BEGIN
 
-SET p_felicidad = 80;
+    -- Por ahora devuelve un valor fijo
+    SET p_felicidad = 80;
 
-END//
+END;
 
-DELIMITER ;
+-- En una versión completa debería calcularse
+-- utilizando hambre, diversión, higiene,
+-- energía y salud de la mascota.
