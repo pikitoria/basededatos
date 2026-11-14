@@ -356,178 +356,267 @@ SELECT * FROM sessionresults;
 SELECT * FROM petstatelogs;
 
 -- =====================================================
--- PROCEDIMIENTO GENERAL
+-- PROCEDIMIENTOS ALMACENADOS
+-- =====================================================
+
+DELIMITER //
+
+-- =====================================================
+-- PROCEDIMIENTO PRINCIPAL
+-- Registra una acción realizada por la mascota
 -- =====================================================
 
 CREATE PROCEDURE sp_realizaraccion(
-
-    -- Sesión donde se ejecuta la acción
+    -- Sesión donde se realiza la acción
     IN p_idsession INT,
 
-    -- Acción a realizar
+    -- Acción realizada
     IN p_idaction INT,
 
     -- Mensaje de salida
     OUT p_mensaje VARCHAR(100)
-
 )
-
 BEGIN
 
-    -- Aquí debería implementarse la lógica principal
-    -- para modificar los atributos de la mascota
-    -- según la acción seleccionada.
-
-END;
-
--- =====================================================
--- PROCEDIMIENTOS DE ACCIONES
--- =====================================================
-
--- Alimentar
--- Llama al procedimiento principal
--- utilizando la acción N°1
-
-CREATE PROCEDURE sp_alimentar(...)
-BEGIN
-    CALL sp_realizaraccion(
-    p_idsession,
-    1,
-    p_mensaje
+    -- Guarda la acción en el historial
+    INSERT INTO actionlogs(
+        IDsession,
+        IDaction,
+        timestamp
+    )
+    VALUES(
+        p_idsession,
+        p_idaction,
+        NOW()
     );
-END;
 
--- Jugar
--- Ejecuta la acción N°2
+    -- Mensaje de confirmación
+    SET p_mensaje = 'accion registrada';
 
-CREATE PROCEDURE sp_jugar(...)
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO ALIMENTAR
+-- Ejecuta la acción alimentar
+-- =====================================================
+
+CREATE PROCEDURE sp_alimentar(
+    IN p_idsession INT,
+    OUT p_mensaje VARCHAR(100)
+)
 BEGIN
+
+    -- Acción número 1
     CALL sp_realizaraccion(
-    p_idsession,
-    2,
-    p_mensaje
+        p_idsession,
+        1,
+        p_mensaje
     );
-END;
 
--- Asear
--- Ejecuta la acción N°3
+END //
 
-CREATE PROCEDURE sp_asear(...)
+-- =====================================================
+-- PROCEDIMIENTO JUGAR
+-- Ejecuta la acción jugar
+-- =====================================================
+
+CREATE PROCEDURE sp_jugar(
+    IN p_idsession INT,
+    OUT p_mensaje VARCHAR(100)
+)
 BEGIN
+
+    -- Acción número 2
     CALL sp_realizaraccion(
-    p_idsession,
-    3,
-    p_mensaje
+        p_idsession,
+        2,
+        p_mensaje
     );
-END;
 
--- Dormir
--- Ejecuta la acción N°4
+END //
 
-CREATE PROCEDURE sp_dormir(...)
+-- =====================================================
+-- PROCEDIMIENTO ASEAR
+-- Ejecuta la acción asear
+-- =====================================================
+
+CREATE PROCEDURE sp_asear(
+    IN p_idsession INT,
+    OUT p_mensaje VARCHAR(100)
+)
 BEGIN
+
+    -- Acción número 3
     CALL sp_realizaraccion(
-    p_idsession,
-    4,
-    p_mensaje
+        p_idsession,
+        3,
+        p_mensaje
     );
-END;
+
+END //
 
 -- =====================================================
--- PROCEDIMIENTOS COMPLEMENTARIOS
+-- PROCEDIMIENTO DORMIR
+-- Ejecuta la acción dormir
 -- =====================================================
 
--- Veterinario
--- Simula atención médica
-
-SET p_mensaje='mascota atendida por veterinario';
-
--- Pasear
--- Simula salida al exterior
-
-SET p_mensaje='la mascota salio a pasear';
-
--- Dar premio
--- Recompensa a la mascota
-
-SET p_mensaje='premio entregado';
-
--- Bañar
--- Limpia la mascota
-
-SET p_mensaje='mascota bañada';
-
--- Dar agua
--- Hidrata a la mascota
-
-SET p_mensaje='la mascota tomo agua';
-
--- Entrenar
--- Simula entrenamiento
-
-SET p_mensaje='la mascota entreno';
-
--- Abrazar
--- Incrementa el afecto
-
-SET p_mensaje='la mascota recibio cariño';
-
--- Actualmente estos procedimientos solamente
--- muestran mensajes y no modifican datos.
-
--- =====================================================
--- EVENTO ALEATORIO
--- =====================================================
-
-CREATE PROCEDURE sp_eventoaleatorio(...)
-
+CREATE PROCEDURE sp_dormir(
+    IN p_idsession INT,
+    OUT p_mensaje VARCHAR(100)
+)
 BEGIN
 
-    DECLARE v_num INT;
+    -- Acción número 4
+    CALL sp_realizaraccion(
+        p_idsession,
+        4,
+        p_mensaje
+    );
 
-    -- Genera un número aleatorio entre 1 y 3
-    SET v_num = FLOOR(1 + RAND()*3);
-
-    IF v_num = 1 THEN
-
-        SET p_evento =
-        'encontro comida';
-
-    ELSEIF v_num = 2 THEN
-
-        SET p_evento =
-        'encontro juguete';
-
-    ELSE
-
-        SET p_evento =
-        'se ensucio jugando';
-
-    END IF;
-
-END;
-
--- Se utiliza para generar situaciones
--- inesperadas durante la partida.
+END //
 
 -- =====================================================
--- CÁLCULO DE FELICIDAD
+-- PROCEDIMIENTO VETERINARIO
+-- Simula una consulta veterinaria
+-- =====================================================
+
+CREATE PROCEDURE sp_veterinario(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Muestra mensaje informativo
+    SET p_mensaje =
+    'mascota atendida por veterinario';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO PASEAR
+-- Simula un paseo de la mascota
+-- =====================================================
+
+CREATE PROCEDURE sp_pasear(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de paseo
+    SET p_mensaje =
+    'la mascota salio a pasear';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO DAR PREMIO
+-- Simula una recompensa
+-- =====================================================
+
+CREATE PROCEDURE sp_darpremio(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de premio
+    SET p_mensaje =
+    'premio entregado';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO BAÑAR
+-- Simula un baño para la mascota
+-- =====================================================
+
+CREATE PROCEDURE sp_baniar(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de baño realizado
+    SET p_mensaje =
+    'mascota baniada';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO DAR AGUA
+-- Simula la hidratación de la mascota
+-- =====================================================
+
+CREATE PROCEDURE sp_daragua(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de hidratación
+    SET p_mensaje =
+    'la mascota tomo agua';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO ENTRENAR
+-- Simula una sesión de entrenamiento
+-- =====================================================
+
+CREATE PROCEDURE sp_entrenar(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de entrenamiento
+    SET p_mensaje =
+    'la mascota entreno';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO ABRAZAR
+-- Simula una muestra de cariño
+-- =====================================================
+
+CREATE PROCEDURE sp_abrazar(
+    OUT p_mensaje VARCHAR(100)
+)
+BEGIN
+
+    -- Mensaje de afecto
+    SET p_mensaje =
+    'la mascota recibio carinio';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO EVENTO ALEATORIO
+-- Devuelve un evento simple de ejemplo
+-- =====================================================
+
+CREATE PROCEDURE sp_eventoaleatorio(
+    OUT p_evento VARCHAR(100)
+)
+BEGIN
+
+    -- Evento de ejemplo
+    SET p_evento =
+    'encontro un juguete';
+
+END //
+
+-- =====================================================
+-- PROCEDIMIENTO CALCULAR FELICIDAD
+-- Devuelve un valor fijo de felicidad
 -- =====================================================
 
 CREATE PROCEDURE sp_calcularfelicidad(
-
-IN p_idsession INT,
-OUT p_felicidad DECIMAL(5,2)
-
+    IN p_idsession INT,
+    OUT p_felicidad INT
 )
-
 BEGIN
 
-    -- Por ahora devuelve un valor fijo
+    -- Valor de felicidad de prueba
     SET p_felicidad = 80;
 
-END;
+END //
 
--- En una versión completa debería calcularse
--- utilizando hambre, diversión, higiene,
--- energía y salud de la mascota.
+DELIMITER ;
