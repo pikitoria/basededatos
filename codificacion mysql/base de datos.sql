@@ -115,147 +115,121 @@ insert into sessionresults (IDsession, felicidad_promedio, duracion_total, estad
 (1, 75, 120, 'feliz'),
 (2, 60, 90, 'enfermo');
 
--- ============================================================
--- procedimientos almacenados
--- ============================================================
-
--- sp = procedimiento almacenado, p_ = parametro, in = entra, out = sale
--- delimiter // = cambio el ; por // para que no se corte antes
--- idea: cada procedimiento copia el ultimo estado de la mascota (petstatelogs),
--- le suma el cambio y guarda una fila nueva. sin variables y sin if.
--- greatest/least = que el valor no se pase de 0 a 100
-
--- sp_iniciarsesion = crea una sesion nueva
 delimiter //
-create procedure sp_iniciarsesion(in p_idpet int, out p_idsession int, out p_mensaje varchar(100))
+create procedure sp_iniciarsesion(in p_idpet int)
 begin
-    insert into sessions (idpet, inicio, fin, duracion) values (p_idpet, now(), null, 0);
-    -- last_insert_id() = el ultimo id que se creo solo
-    set p_idsession = last_insert_id();
+    insert into sessions (idpet, inicio, fin, duracion)
+    values (p_idpet, now(), null, 0);
 
     insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    values (p_idsession, now(), 50, 50, 50, 50, 80);
+    values ((select max(idsession) from sessions), now(), 50, 50, 50, 50, 80);
 
     insert into sessionresults (idsession, felicidad_promedio, duracion_total, estado_final)
-    values (p_idsession, 0, 0, 'jugando');
+    values ((select max(idsession) from sessions), 0, 0, 'jugando');
 
-    set p_mensaje = 'sesion creada';
+    select max(idsession) as idsession from sessions;
 end //
 delimiter ;
 
--- sp_realizaraccion = aplica una accion (alimentar, jugar, asear, dormir)
--- u = ultimo estado, a = accion
 delimiter //
-create procedure sp_realizaraccion(in p_idsession int, in p_idaction int, out p_mensaje varchar(100))
+create procedure sp_alimentar(in p_idsession int)
 begin
     insert into actionlogs (idsession, idaction, timestamp)
-    values (p_idsession, p_idaction, now());
+    values (p_idsession, 1, now());
 
     insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(),
-        greatest(0, least(100, u.hambre + a.efecto_hambre)),
-        greatest(0, least(100, u.diversion + a.efecto_diversion)),
-        greatest(0, least(100, u.higiene + a.efecto_higiene)),
-        greatest(0, least(100, u.energia + a.efecto_energia)),
-        greatest(0, least(100, u.salud + a.efecto_salud))
-    from actiontypes a,
-         (select * from petstatelogs where idsession = p_idsession order by idlog desc limit 1) u
-    where a.idaction = p_idaction;
-
-    set p_mensaje = 'accion guardada';
-end //
-delimiter ;
-
--- cada accion llama a sp_realizaraccion con su id
-delimiter //
-create procedure sp_alimentar(in p_idsession int, out p_mensaje varchar(100))
-begin
-    call sp_realizaraccion(p_idsession, 1, p_mensaje);
-end //
-delimiter ;
-
-delimiter //
-create procedure sp_jugar(in p_idsession int, out p_mensaje varchar(100))
-begin
-    call sp_realizaraccion(p_idsession, 2, p_mensaje);
-end //
-delimiter ;
-
-delimiter //
-create procedure sp_asear(in p_idsession int, out p_mensaje varchar(100))
-begin
-    call sp_realizaraccion(p_idsession, 3, p_mensaje);
-end //
-delimiter ;
-
-delimiter //
-create procedure sp_dormir(in p_idsession int, out p_mensaje varchar(100))
-begin
-    call sp_realizaraccion(p_idsession, 4, p_mensaje);
-end //
-delimiter ;
-
--- sp_pasartiempo = pasa el tiempo solo: hambre +5, diversion -5, higiene -3, energia -4
-delimiter //
-create procedure sp_pasartiempo(in p_idsession int, out p_mensaje varchar(100))
-begin
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(),
-        least(100, hambre + 5),
-        greatest(0, diversion - 5),
-        greatest(0, higiene - 3),
-        greatest(0, energia - 4),
-        salud
+    select p_idsession, now(), hambre - 30, diversion, higiene, energia, salud + 10
     from petstatelogs
     where idsession = p_idsession
     order by idlog desc limit 1;
-
-    set p_mensaje = 'paso el tiempo';
 end //
 delimiter ;
 
--- evento 1 = se enferma (salud -30)
 delimiter //
-create procedure sp_enfermar(in p_idsession int, out p_mensaje varchar(100))
+create procedure sp_jugar(in p_idsession int)
+begin
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 2, now());
+
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre + 10, diversion + 40, higiene - 10, energia - 20, salud + 5
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+delimiter //
+create procedure sp_asear(in p_idsession int)
+begin
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 3, now());
+
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre, diversion, higiene + 50, energia - 10, salud + 5
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+delimiter //
+create procedure sp_dormir(in p_idsession int)
+begin
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 4, now());
+
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre - 10, diversion, higiene, energia + 50, salud + 10
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+delimiter //
+create procedure sp_pasartiempo(in p_idsession int)
+begin
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre + 5, diversion - 5, higiene - 3, energia - 4, salud
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+delimiter //
+create procedure sp_enfermar(in p_idsession int)
 begin
     insert into eventlogs (idsession, idevent, timestamp)
     values (p_idsession, 1, now());
 
     insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre, diversion, higiene, energia, greatest(0, salud - 30)
+    select p_idsession, now(), hambre, diversion, higiene, energia, salud - 30
     from petstatelogs
     where idsession = p_idsession
     order by idlog desc limit 1;
-
-    set p_mensaje = 'la mascota se enfermo';
 end //
 delimiter ;
 
--- evento 2 = encuentra juguete (diversion +20)
 delimiter //
-create procedure sp_encontrarjuguete(in p_idsession int, out p_mensaje varchar(100))
+create procedure sp_encontrarjuguete(in p_idsession int)
 begin
     insert into eventlogs (idsession, idevent, timestamp)
     values (p_idsession, 2, now());
 
     insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre, least(100, diversion + 20), higiene, energia, salud
+    select p_idsession, now(), hambre, diversion + 20, higiene, energia, salud
     from petstatelogs
     where idsession = p_idsession
     order by idlog desc limit 1;
-
-    set p_mensaje = 'la mascota encontro un juguete';
 end //
 delimiter ;
 
--- sp_estadisticas = total de sesiones y promedio de felicidad
--- decimal(5,2) = numero con 2 decimales, avg = promedio
 delimiter //
-create procedure sp_estadisticas(out p_total_sesiones int, out p_promedio_felicidad decimal(5,2))
+create procedure sp_estadisticas()
 begin
-    select count(*), avg(felicidad_promedio)
-    into p_total_sesiones, p_promedio_felicidad
+    select count(*) as total_sesiones, avg(felicidad_promedio) as promedio_felicidad
     from sessionresults;
 end //
 delimiter ;
-
