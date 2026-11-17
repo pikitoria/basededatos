@@ -1,622 +1,333 @@
--- =====================================================
--- CREACIÓN DE LA BASE DE DATOS
--- =====================================================
+create database mascotavirtual;
+use mascotavirtual;
 
--- Crea la base de datos principal del proyecto
-CREATE DATABASE mascotavirtual;
-
--- Selecciona la base de datos para trabajar en ella
-USE mascotavirtual;
-
--- =====================================================
--- TABLA PLAYERS
--- Guarda la información de los jugadores
--- =====================================================
-
-CREATE TABLE players(
-
-    -- Identificador único del jugador
-    IDplayer INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Nombre del jugador
-    nombre VARCHAR(50) NOT NULL,
-
-    -- Correo electrónico único
-    email VARCHAR(100) UNIQUE NOT NULL
-
+create table players (
+    IDplayer int auto_increment primary key,
+    nombre varchar(50) not null,
+    email varchar(100) unique not null
 );
 
--- =====================================================
--- TABLA PETS
--- Guarda las mascotas de cada jugador
--- =====================================================
-
-CREATE TABLE pets(
-
-    -- Identificador único de la mascota
-    IDpet INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Jugador dueño de la mascota
-    IDplayer INT NOT NULL,
-
-    -- Nombre de la mascota
-    nombre VARCHAR(50) NOT NULL,
-
-    -- Tipo de mascota (perro, gato, etc.)
-    tipo VARCHAR(30) NOT NULL,
-
-    -- Fecha de creación de la mascota
-    fecha_creacion DATE NOT NULL,
-
-    -- Relación con la tabla players
-    FOREIGN KEY(IDplayer)
-    REFERENCES players(IDplayer)
-
+create table pets (
+    IDpet int auto_increment primary key,
+    IDplayer int not null,
+    nombre varchar(50) not null,
+    tipo varchar(30) not null,
+    fecha_creacion date not null,
+    foreign key (IDplayer) references players(IDplayer)
 );
 
--- Un jugador puede tener varias mascotas
--- PLAYER 1 ---- N PETS
-
--- =====================================================
--- TABLA SESSIONS
--- Guarda las partidas realizadas
--- =====================================================
-
-CREATE TABLE sessions(
-
-    -- Identificador de la sesión
-    IDsession INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Mascota asociada a la sesión
-    IDpet INT NOT NULL,
-
-    -- Fecha y hora de inicio
-    inicio DATETIME NOT NULL,
-
-    -- Fecha y hora de finalización
-    fin DATETIME,
-
-    -- Duración total en minutos
-    duracion INT,
-
-    -- Relación con la mascota
-    FOREIGN KEY(IDpet)
-    REFERENCES pets(IDpet)
-
+create table sessions (
+    IDsession int auto_increment primary key,
+    IDpet int not null,
+    inicio datetime not null,
+    fin datetime,
+    duracion int,
+    foreign key (IDpet) references pets(IDpet)
 );
 
--- Una mascota puede tener muchas sesiones
--- PET 1 ---- N SESSIONS
-
--- =====================================================
--- TABLA PETSTATELOGS
--- Guarda el estado histórico de la mascota
--- =====================================================
-
-CREATE TABLE petstatelogs(
-
-    -- Identificador del registro
-    IDlog INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Sesión relacionada
-    IDsession INT NOT NULL,
-
-    -- Momento en que se registró el estado
-    timestamp DATETIME NOT NULL,
-
-    -- Nivel de hambre (0 a 100)
-    hambre INT CHECK(hambre BETWEEN 0 AND 100),
-
-    -- Nivel de diversión (0 a 100)
-    diversion INT CHECK(diversion BETWEEN 0 AND 100),
-
-    -- Nivel de higiene (0 a 100)
-    higiene INT CHECK(higiene BETWEEN 0 AND 100),
-
-    -- Nivel de energía (0 a 100)
-    energia INT CHECK(energia BETWEEN 0 AND 100),
-
-    -- Nivel de salud (0 a 100)
-    salud INT CHECK(salud BETWEEN 0 AND 100),
-
-    -- Relación con la sesión
-    FOREIGN KEY(IDsession)
-    REFERENCES sessions(IDsession)
-
+create table petstatelogs (
+    IDlog int auto_increment primary key,
+    IDsession int not null,
+    timestamp datetime not null,
+    hambre int check(hambre between 0 and 100),
+    diversion int check(diversion between 0 and 100),
+    higiene int check(higiene between 0 and 100),
+    energia int check(energia between 0 and 100),
+    salud int check(salud between 0 and 100),
+    foreign key (IDsession) references sessions(IDsession)
 );
 
--- Permite registrar la evolución de la mascota
--- durante toda la partida.
-
--- =====================================================
--- TABLA ACTIONTYPES
--- Define las acciones disponibles en el juego
--- =====================================================
-
-CREATE TABLE actiontypes(
-
-    -- Identificador de la acción
-    IDaction INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Nombre de la acción
-    nombre VARCHAR(50) NOT NULL,
-
-    -- Efectos que provoca sobre la mascota
-    efecto_hambre INT,
-    efecto_diversion INT,
-    efecto_higiene INT,
-    efecto_energia INT,
-    efecto_salud INT
-
+create table actiontypes (
+    IDaction int auto_increment primary key,
+    nombre varchar(50) not null,
+    efecto_hambre int,
+    efecto_diversion int,
+    efecto_higiene int,
+    efecto_energia int,
+    efecto_salud int
 );
 
--- Ejemplos:
--- Alimentar
--- Jugar
--- Dormir
--- Asear
-
--- =====================================================
--- TABLA ACTIONLOGS
--- Historial de acciones realizadas
--- =====================================================
-
-CREATE TABLE actionlogs(
-
-    -- Identificador del registro
-    IDlog INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Sesión donde ocurrió la acción
-    IDsession INT NOT NULL,
-
-    -- Acción realizada
-    IDaction INT NOT NULL,
-
-    -- Fecha y hora de ejecución
-    timestamp DATETIME NOT NULL,
-
-    FOREIGN KEY(IDsession)
-    REFERENCES sessions(IDsession),
-
-    FOREIGN KEY(IDaction)
-    REFERENCES actiontypes(IDaction)
-
+create table actionlogs (
+    IDlog int auto_increment primary key,
+    IDsession int not null,
+    IDaction int not null,
+    timestamp datetime not null,
+    foreign key (IDsession) references sessions(IDsession),
+    foreign key (IDaction) references actiontypes(IDaction)
 );
 
--- Permite saber qué hizo el jugador
--- durante cada partida.
-
--- =====================================================
--- TABLA EVENTS
--- Eventos aleatorios del juego
--- =====================================================
-
-CREATE TABLE events(
-
-    -- Identificador del evento
-    IDevent INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Nombre del evento
-    nombre VARCHAR(50) NOT NULL,
-
-    -- Descripción del efecto
-    efecto VARCHAR(100)
-
+create table events (
+    IDevent int auto_increment primary key,
+    nombre varchar(50) not null,
+    efecto varchar(100)
 );
 
--- Ejemplos:
--- Se enferma
--- Encuentra juguete
-
--- =====================================================
--- TABLA EVENTLOGS
--- Historial de eventos ocurridos
--- =====================================================
-
-CREATE TABLE eventlogs(
-
-    -- Identificador del registro
-    IDlog INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Sesión en que ocurrió
-    IDsession INT NOT NULL,
-
-    -- Evento ocurrido
-    IDevent INT NOT NULL,
-
-    -- Fecha y hora del evento
-    timestamp DATETIME NOT NULL,
-
-    FOREIGN KEY(IDsession)
-    REFERENCES sessions(IDsession),
-
-    FOREIGN KEY(IDevent)
-    REFERENCES events(IDevent)
-
+create table eventlogs (
+    IDlog int auto_increment primary key,
+    IDsession int not null,
+    IDevent int not null,
+    timestamp datetime not null,
+    foreign key (IDsession) references sessions(IDsession),
+    foreign key (IDevent) references events(IDevent)
 );
 
--- Guarda todos los eventos aleatorios
--- producidos durante una sesión.
-
--- =====================================================
--- TABLA SESSIONRESULTS
--- Resultado final de cada partida
--- =====================================================
-
-CREATE TABLE sessionresults(
-
-    -- Identificador del resultado
-    IDresult INT AUTO_INCREMENT PRIMARY KEY,
-
-    -- Sesión evaluada
-    IDsession INT NOT NULL,
-
-    -- Promedio de felicidad de la mascota
-    felicidad_promedio INT,
-
-    -- Duración total de la partida
-    duracion_total INT,
-
-    -- Estado final de la mascota
-    estado_final VARCHAR(30),
-
-    FOREIGN KEY(IDsession)
-    REFERENCES sessions(IDsession)
-
+create table sessionresults (
+    IDresult int auto_increment primary key,
+    IDsession int not null,
+    felicidad_promedio int,
+    duracion_total int,
+    estado_final varchar(30),
+    foreign key (IDsession) references sessions(IDsession)
 );
 
--- Resume cómo terminó la mascota
--- al finalizar la partida.
-
--- =====================================================
--- DATOS DE PRUEBA
--- Se cargan registros iniciales para realizar pruebas
--- =====================================================
-
-INSERT INTO players(nombre,email)
-VALUES
-('luciana','luciana@mail.com'),
-('juan','juan@mail.com');
-
--- Se crean dos jugadores de ejemplo
-
-
-INSERT INTO pets(IDplayer,nombre,tipo,fecha_creacion)
-VALUES
-(1,'firulais','perro','2026-08-01'),
-(2,'michi','gato','2026-08-02');
-
--- Se crean dos mascotas asociadas a jugadores
-
-
-INSERT INTO sessions(IDpet,inicio,fin,duracion)
-VALUES
-(1,'2026-08-05 10:00:00','2026-08-05 12:00:00',120),
-(2,'2026-08-05 14:00:00','2026-08-05 15:30:00',90);
-
--- Se registran dos partidas de ejemplo
-
-
-INSERT INTO actiontypes
-(nombre,efecto_hambre,efecto_diversion,
-efecto_higiene,efecto_energia,efecto_salud)
-VALUES
-('alimentar',-30,0,0,0,10),
-('jugar',10,40,-10,-20,5),
-('asear',0,0,50,-10,5),
-('dormir',-10,0,0,50,10);
-
--- Configuración de efectos de las acciones:
--- Alimentar reduce hambre y mejora salud.
--- Jugar aumenta diversión pero consume energía.
--- Asear mejora higiene.
--- Dormir recupera energía.
-
-INSERT INTO events(nombre,efecto)
-VALUES
-('se enferma','salud -30'),
-('encuentra juguete','diversion +20');
-
--- Eventos aleatorios disponibles
-
--- =====================================================
--- CONSULTAS BÁSICAS
--- =====================================================
-
--- Mostrar todos los jugadores
-SELECT * FROM players;
-
--- Mostrar todas las mascotas
-SELECT * FROM pets;
-
--- Mostrar todas las sesiones
-SELECT * FROM sessions;
-
--- Mostrar mascota y su dueño utilizando INNER JOIN
-SELECT p.nombre AS mascota,
-       pl.nombre AS jugador
-FROM pets p
-INNER JOIN players pl
-ON p.IDplayer = pl.IDplayer;
-
--- Cuenta la cantidad total de mascotas
-SELECT COUNT(*) AS total_mascotas
-FROM pets;
-
--- Mostrar acciones disponibles
-SELECT * FROM actiontypes;
-
--- Mostrar eventos disponibles
-SELECT * FROM events;
-
--- Mostrar resultados finales
-SELECT * FROM sessionresults;
-
--- Mostrar historial de estados
-SELECT * FROM petstatelogs;
-
--- =====================================================
--- PROCEDIMIENTOS ALMACENADOS
--- =====================================================
-
-DELIMITER //
-
--- =====================================================
--- PROCEDIMIENTO PRINCIPAL
--- Registra una acción realizada por la mascota
--- =====================================================
-
-CREATE PROCEDURE sp_realizaraccion(
-    -- Sesión donde se realiza la acción
-    IN p_idsession INT,
-
-    -- Acción realizada
-    IN p_idaction INT,
-
-    -- Mensaje de salida
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Guarda la acción en el historial
-    INSERT INTO actionlogs(
-        IDsession,
-        IDaction,
-        timestamp
-    )
-    VALUES(
-        p_idsession,
-        p_idaction,
-        NOW()
-    );
-
-    -- Mensaje de confirmación
-    SET p_mensaje = 'accion registrada';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO ALIMENTAR
--- Ejecuta la acción alimentar
--- =====================================================
-
-CREATE PROCEDURE sp_alimentar(
-    IN p_idsession INT,
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Acción número 1
-    CALL sp_realizaraccion(
-        p_idsession,
-        1,
-        p_mensaje
-    );
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO JUGAR
--- Ejecuta la acción jugar
--- =====================================================
-
-CREATE PROCEDURE sp_jugar(
-    IN p_idsession INT,
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Acción número 2
-    CALL sp_realizaraccion(
-        p_idsession,
-        2,
-        p_mensaje
-    );
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO ASEAR
--- Ejecuta la acción asear
--- =====================================================
-
-CREATE PROCEDURE sp_asear(
-    IN p_idsession INT,
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Acción número 3
-    CALL sp_realizaraccion(
-        p_idsession,
-        3,
-        p_mensaje
-    );
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO DORMIR
--- Ejecuta la acción dormir
--- =====================================================
-
-CREATE PROCEDURE sp_dormir(
-    IN p_idsession INT,
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Acción número 4
-    CALL sp_realizaraccion(
-        p_idsession,
-        4,
-        p_mensaje
-    );
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO VETERINARIO
--- Simula una consulta veterinaria
--- =====================================================
-
-CREATE PROCEDURE sp_veterinario(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Muestra mensaje informativo
-    SET p_mensaje =
-    'mascota atendida por veterinario';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO PASEAR
--- Simula un paseo de la mascota
--- =====================================================
-
-CREATE PROCEDURE sp_pasear(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de paseo
-    SET p_mensaje =
-    'la mascota salio a pasear';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO DAR PREMIO
--- Simula una recompensa
--- =====================================================
-
-CREATE PROCEDURE sp_darpremio(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de premio
-    SET p_mensaje =
-    'premio entregado';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO BAÑAR
--- Simula un baño para la mascota
--- =====================================================
-
-CREATE PROCEDURE sp_baniar(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de baño realizado
-    SET p_mensaje =
-    'mascota baniada';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO DAR AGUA
--- Simula la hidratación de la mascota
--- =====================================================
-
-CREATE PROCEDURE sp_daragua(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de hidratación
-    SET p_mensaje =
-    'la mascota tomo agua';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO ENTRENAR
--- Simula una sesión de entrenamiento
--- =====================================================
-
-CREATE PROCEDURE sp_entrenar(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de entrenamiento
-    SET p_mensaje =
-    'la mascota entreno';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO ABRAZAR
--- Simula una muestra de cariño
--- =====================================================
-
-CREATE PROCEDURE sp_abrazar(
-    OUT p_mensaje VARCHAR(100)
-)
-BEGIN
-
-    -- Mensaje de afecto
-    SET p_mensaje =
-    'la mascota recibio carinio';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO EVENTO ALEATORIO
--- Devuelve un evento simple de ejemplo
--- =====================================================
-
-CREATE PROCEDURE sp_eventoaleatorio(
-    OUT p_evento VARCHAR(100)
-)
-BEGIN
-
-    -- Evento de ejemplo
-    SET p_evento =
-    'encontro un juguete';
-
-END //
-
--- =====================================================
--- PROCEDIMIENTO CALCULAR FELICIDAD
--- Devuelve un valor fijo de felicidad
--- =====================================================
-
-CREATE PROCEDURE sp_calcularfelicidad(
-    IN p_idsession INT,
-    OUT p_felicidad INT
-)
-BEGIN
-
-    -- Valor de felicidad de prueba
-    SET p_felicidad = 80;
-
-END //
-
-DELIMITER ;
+insert into players (nombre, email) values
+('luciana', 'luciana@mail.com'),
+('juan', 'juan@mail.com');
+
+insert into pets (IDplayer, nombre, tipo, fecha_creacion) values
+(1, 'firulais', 'perro', '2026-08-01'),
+(2, 'michi', 'gato', '2026-08-02');
+
+insert into sessions (IDpet, inicio, fin, duracion) values
+(1, '2026-08-05 10:00:00', '2026-08-05 12:00:00', 120),
+(2, '2026-08-05 14:00:00', '2026-08-05 15:30:00', 90);
+
+insert into actiontypes (nombre, efecto_hambre, efecto_diversion, efecto_higiene, efecto_energia, efecto_salud) values
+('alimentar', -30, 0, 0, 0, +10),
+('jugar', +10, +40, -10, -20, +5),
+('asear', 0, 0, +50, -10, +5),
+('dormir', -10, 0, 0, +50, +10);
+
+insert into actionlogs (IDsession, IDaction, timestamp) values
+(1, 1, '2026-08-05 10:15:00'),
+(1, 2, '2026-08-05 10:45:00'),
+(2, 4, '2026-08-05 14:20:00');
+
+insert into events (nombre, efecto) values
+('se enferma', 'salud -30'),
+('encuentra juguete', 'diversion +20');
+
+insert into eventlogs (IDsession, IDevent, timestamp) values
+(1, 1, '2026-08-05 11:00:00'),
+(2, 2, '2026-08-05 14:40:00');
+
+insert into sessionresults (IDsession, felicidad_promedio, duracion_total, estado_final) values
+(1, 75, 120, 'feliz'),
+(2, 60, 90, 'enfermo');
+
+-- ============================================================
+-- procedimientos almacenados (stored procedures)
+-- ============================================================
+
+-- sp = stored procedure, o sea procedimiento almacenado: un codigo guardado
+--      en la base de datos que se ejecuta con call
+-- p_ = parametro, es un dato que le paso al procedimiento
+-- in = el dato entra al procedimiento
+-- delimiter // = cambio el ; por // para que mysql no corte el procedimiento
+--      en el primer ; que encuentra. al final lo vuelvo a poner con delimiter ;
+-- begin ... end = adentro va todo lo que hace el procedimiento
+--
+-- idea general: la mascota no guarda su estado en una sola fila que se pisa.
+-- cada cambio agrega una fila nueva en petstatelogs y el estado actual es
+-- la ultima fila de esa sesion.
+-- order by idlog desc limit 1 = ordena de la fila mas nueva a la mas vieja
+--      y se queda solo con la primera, o sea el estado actual
+-- ningun procedimiento llama a otro, cada uno hace todo solo
+
+-- ------------------------------------------------------------
+-- sp_iniciarsesion
+-- empieza una partida nueva para una mascota
+-- se usa asi: call sp_iniciarsesion(1);   (1 = id de la mascota)
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_iniciarsesion(in p_idpet int)
+begin
+    -- crea la sesion: inicio es ahora (now), fin queda vacio (null)
+    -- porque todavia no termino y la duracion arranca en 0
+    insert into sessions (idpet, inicio, fin, duracion)
+    values (p_idpet, now(), null, 0);
+
+    -- crea el estado inicial de la mascota: 50 en hambre, diversion,
+    -- higiene y energia, y salud en 80
+    -- max(idsession) = el id mas grande, o sea el de la sesion que recien se creo
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    values ((select max(idsession) from sessions), now(), 50, 50, 50, 50, 80);
+
+    -- crea el resultado de la sesion con todo en 0 y el estado 'jugando'
+    -- (despues se va a ir completando cuando termine la partida)
+    insert into sessionresults (idsession, felicidad_promedio, duracion_total, estado_final)
+    values ((select max(idsession) from sessions), 0, 0, 'jugando');
+
+    -- devuelve el id de la sesion nueva, el juego lo necesita para llamar
+    -- a los demas procedimientos
+    select max(idsession) as idsession from sessions;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_alimentar
+-- le da de comer a la mascota: baja el hambre 30 y sube la salud 10
+-- se usa asi: call sp_alimentar(3);   (3 = id de la sesion)
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_alimentar(in p_idsession int)
+begin
+    -- guarda en el historial de acciones que se hizo la accion 1 (alimentar)
+    -- y a que hora
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 1, now());
+
+    -- copia el ultimo estado de la mascota y guarda una fila nueva con los cambios:
+    -- hambre - 30 y salud + 10, el resto queda igual
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre - 30, diversion, higiene, energia, salud + 10
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_jugar
+-- juega con la mascota: sube la diversion pero se cansa y se ensucia
+-- cambios: hambre +10, diversion +40, higiene -10, energia -20, salud +5
+-- se usa asi: call sp_jugar(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_jugar(in p_idsession int)
+begin
+    -- registra la accion 2 (jugar) en el historial
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 2, now());
+
+    -- copia el ultimo estado y guarda uno nuevo con los cambios de jugar
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre + 10, diversion + 40, higiene - 10, energia - 20, salud + 5
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_asear
+-- baña a la mascota: sube mucho la higiene pero la cansa un poco
+-- cambios: higiene +50, energia -10, salud +5
+-- se usa asi: call sp_asear(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_asear(in p_idsession int)
+begin
+    -- registra la accion 3 (asear) en el historial
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 3, now());
+
+    -- copia el ultimo estado y guarda uno nuevo con los cambios de asear
+    -- el hambre y la diversion se copian igual
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre, diversion, higiene + 50, energia - 10, salud + 5
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_dormir
+-- hace dormir a la mascota: recupera mucha energia
+-- cambios: hambre -10, energia +50, salud +10
+-- se usa asi: call sp_dormir(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_dormir(in p_idsession int)
+begin
+    -- registra la accion 4 (dormir) en el historial
+    insert into actionlogs (idsession, idaction, timestamp)
+    values (p_idsession, 4, now());
+
+    -- copia el ultimo estado y guarda uno nuevo con los cambios de dormir
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre - 10, diversion, higiene, energia + 50, salud + 10
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_pasartiempo
+-- hace que pase el tiempo solo, sin que el jugador toque nada
+-- cambios: hambre +5, diversion -5, higiene -3, energia -4, salud igual
+-- se usa asi: call sp_pasartiempo(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_pasartiempo(in p_idsession int)
+begin
+    -- no guarda nada en actionlogs porque no es una accion del jugador
+    -- copia el ultimo estado y guarda uno nuevo: el hambre sube y
+    -- la diversion, la higiene y la energia bajan
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre + 5, diversion - 5, higiene - 3, energia - 4, salud
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_enfermar
+-- evento 1: la mascota se enferma y pierde 30 de salud
+-- se usa asi: call sp_enfermar(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_enfermar(in p_idsession int)
+begin
+    -- guarda en eventlogs que paso el evento 1 (se enferma) en esa sesion
+    insert into eventlogs (idsession, idevent, timestamp)
+    values (p_idsession, 1, now());
+
+    -- copia el ultimo estado y guarda uno nuevo donde solo cambia la salud (- 30)
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre, diversion, higiene, energia, salud - 30
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_encontrarjuguete
+-- evento 2: la mascota encuentra un juguete y sube 20 de diversion
+-- se usa asi: call sp_encontrarjuguete(3);
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_encontrarjuguete(in p_idsession int)
+begin
+    -- guarda en eventlogs que paso el evento 2 (encuentra juguete)
+    insert into eventlogs (idsession, idevent, timestamp)
+    values (p_idsession, 2, now());
+
+    -- copia el ultimo estado y guarda uno nuevo donde solo cambia la diversion (+ 20)
+    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
+    select p_idsession, now(), hambre, diversion + 20, higiene, energia, salud
+    from petstatelogs
+    where idsession = p_idsession
+    order by idlog desc limit 1;
+end //
+delimiter ;
+
+-- ------------------------------------------------------------
+-- sp_estadisticas
+-- muestra cuantas sesiones se jugaron y el promedio de felicidad
+-- no recibe nada, se usa asi: call sp_estadisticas();
+-- ------------------------------------------------------------
+delimiter //
+create procedure sp_estadisticas()
+begin
+    -- count(*) = cuenta las filas, o sea las sesiones
+    -- avg(...) = saca el promedio de la columna felicidad_promedio
+    -- as = le pone un nombre a la columna del resultado
+    select count(*) as total_sesiones, avg(felicidad_promedio) as promedio_felicidad
+    from sessionresults;
+end //
+delimiter ;
