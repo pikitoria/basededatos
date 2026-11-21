@@ -1,235 +1,535 @@
-create database mascotavirtual;
-use mascotavirtual;
+CREATE DATABASE MascotaVirtual;
+USE MascotaVirtual;
 
-create table players (
-    IDplayer int auto_increment primary key,
-    nombre varchar(50) not null,
-    email varchar(100) unique not null
+CREATE TABLE Players(
+    IDplayer INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL
 );
 
-create table pets (
-    IDpet int auto_increment primary key,
-    IDplayer int not null,
-    nombre varchar(50) not null,
-    tipo varchar(30) not null,
-    fecha_creacion date not null,
-    foreign key (IDplayer) references players(IDplayer)
+CREATE TABLE Pets(
+    IDpet INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    tipo VARCHAR(30) NOT NULL,
+    fecha_creacion DATE NOT NULL
 );
 
-create table sessions (
-    IDsession int auto_increment primary key,
-    IDpet int not null,
-    inicio datetime not null,
-    fin datetime,
-    duracion int,
-    foreign key (IDpet) references pets(IDpet)
+CREATE TABLE Sessions(
+    IDsession INT AUTO_INCREMENT PRIMARY KEY,
+    IDplayer INT NOT NULL,
+    IDpet INT NOT NULL,
+    inicio DATETIME NOT NULL,
+    fin DATETIME,
+    duracion INT,
+    FOREIGN KEY(IDplayer) REFERENCES Players(IDplayer),
+    FOREIGN KEY(IDpet) REFERENCES Pets(IDpet)
 );
 
-create table petstatelogs (
-    IDlog int auto_increment primary key,
-    IDsession int not null,
-    timestamp datetime not null,
-    hambre int check(hambre between 0 and 100),
-    diversion int check(diversion between 0 and 100),
-    higiene int check(higiene between 0 and 100),
-    energia int check(energia between 0 and 100),
-    salud int check(salud between 0 and 100),
-    foreign key (IDsession) references sessions(IDsession)
+CREATE TABLE PetStateLogs(
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+    IDsession INT NOT NULL,
+    timestamp DATETIME NOT NULL,
+    hambre INT CHECK(hambre BETWEEN 0 AND 100),
+    diversion INT CHECK(diversion BETWEEN 0 AND 100),
+    higiene INT CHECK(higiene BETWEEN 0 AND 100),
+    energia INT CHECK(energia BETWEEN 0 AND 100),
+    salud INT CHECK(salud BETWEEN 0 AND 100),
+    FOREIGN KEY(IDsession) REFERENCES Sessions(IDsession)
 );
 
-create table actiontypes (
-    IDaction int auto_increment primary key,
-    nombre varchar(50) not null,
-    efecto_hambre int,
-    efecto_diversion int,
-    efecto_higiene int,
-    efecto_energia int,
-    efecto_salud int
+CREATE TABLE ActionTypes(
+    IDaction INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL
 );
 
-create table actionlogs (
-    IDlog int auto_increment primary key,
-    IDsession int not null,
-    IDaction int not null,
-    timestamp datetime not null,
-    foreign key (IDsession) references sessions(IDsession),
-    foreign key (IDaction) references actiontypes(IDaction)
+CREATE TABLE Effects(
+    IDeffect INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(30) NOT NULL
 );
 
-create table events (
-    IDevent int auto_increment primary key,
-    nombre varchar(50) not null,
-    efecto varchar(100)
+CREATE TABLE ActionEffects(
+    IDactionEffect INT AUTO_INCREMENT PRIMARY KEY,
+    IDaction INT NOT NULL,
+    IDeffect INT NOT NULL,
+    valor INT NOT NULL,
+    FOREIGN KEY(IDaction) REFERENCES ActionTypes(IDaction),
+    FOREIGN KEY(IDeffect) REFERENCES Effects(IDeffect)
 );
 
-create table eventlogs (
-    IDlog int auto_increment primary key,
-    IDsession int not null,
-    IDevent int not null,
-    timestamp datetime not null,
-    foreign key (IDsession) references sessions(IDsession),
-    foreign key (IDevent) references events(IDevent)
+CREATE TABLE ActionLogs(
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+    IDsession INT NOT NULL,
+    IDaction INT NOT NULL,
+    timestamp DATETIME NOT NULL,
+    FOREIGN KEY(IDsession) REFERENCES Sessions(IDsession),
+    FOREIGN KEY(IDaction) REFERENCES ActionTypes(IDaction)
 );
 
-create table sessionresults (
-    IDresult int auto_increment primary key,
-    IDsession int not null,
-    felicidad_promedio int,
-    duracion_total int,
-    estado_final varchar(30),
-    foreign key (IDsession) references sessions(IDsession)
+CREATE TABLE Events(
+    IDevent INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(100) NOT NULL
 );
 
-insert into players (nombre, email) values
-('luciana', 'luciana@mail.com'),
-('juan', 'juan@mail.com');
+CREATE TABLE EventLogs(
+    IDlog INT AUTO_INCREMENT PRIMARY KEY,
+    IDsession INT NOT NULL,
+    IDevent INT NOT NULL,
+    timestamp DATETIME NOT NULL,
+    FOREIGN KEY(IDsession) REFERENCES Sessions(IDsession),
+    FOREIGN KEY(IDevent) REFERENCES Events(IDevent)
+);
 
-insert into pets (IDplayer, nombre, tipo, fecha_creacion) values
-(1, 'firulais', 'perro', '2026-08-01'),
-(2, 'michi', 'gato', '2026-08-02');
+CREATE TABLE SessionResults(
+    IDresult INT AUTO_INCREMENT PRIMARY KEY,
+    IDsession INT NOT NULL,
+    felicidad_promedio INT,
+    duracion_total INT,
+    estado_final VARCHAR(30),
+    FOREIGN KEY(IDsession) REFERENCES Sessions(IDsession)
+);
 
-insert into sessions (IDpet, inicio, fin, duracion) values
-(1, '2026-08-05 10:00:00', '2026-08-05 12:00:00', 120),
-(2, '2026-08-05 14:00:00', '2026-08-05 15:30:00', 90);
+INSERT INTO Players(nombre,email)
+VALUES
+('Luciana','luciana@mail.com'),
+('Juan','juan@mail.com'),
+('Ana','ana@mail.com');
 
-insert into actiontypes (nombre, efecto_hambre, efecto_diversion, efecto_higiene, efecto_energia, efecto_salud) values
-('alimentar', -30, 0, 0, 0, +10),
-('jugar', +10, +40, -10, -20, +5),
-('asear', 0, 0, +50, -10, +5),
-('dormir', -10, 0, 0, +50, +10);
+INSERT INTO Pets(nombre,tipo,fecha_creacion)
+VALUES
+('Firulais','Perro','2026-08-01'),
+('Michi','Gato','2026-08-02'),
+('Pipo','Conejo','2026-08-03');
 
-insert into actionlogs (IDsession, IDaction, timestamp) values
-(1, 1, '2026-08-05 10:15:00'),
-(1, 2, '2026-08-05 10:45:00'),
-(2, 4, '2026-08-05 14:20:00');
+INSERT INTO ActionTypes(nombre)
+VALUES
+('Alimentar'),
+('Jugar'),
+('Asear'),
+('Dormir');
 
-insert into events (nombre, efecto) values
-('se enferma', 'salud -30'),
-('encuentra juguete', 'diversion +20');
+INSERT INTO Effects(nombre)
+VALUES
+('Hambre'),
+('Diversion'),
+('Higiene'),
+('Energia'),
+('Salud');
 
-insert into eventlogs (IDsession, IDevent, timestamp) values
-(1, 1, '2026-08-05 11:00:00'),
-(2, 2, '2026-08-05 14:40:00');
+INSERT INTO ActionEffects(IDaction,IDeffect,valor)
+VALUES
+(1,1,-30),
+(1,5,10),
 
-insert into sessionresults (IDsession, felicidad_promedio, duracion_total, estado_final) values
-(1, 75, 120, 'feliz'),
-(2, 60, 90, 'enfermo');
+(2,1,10),
+(2,2,40),
+(2,3,-10),
+(2,4,-20),
+(2,5,5),
 
-delimiter //
-create procedure sp_iniciarsesion(in p_idpet int)
-begin
-    insert into sessions (idpet, inicio, fin, duracion)
-    values (p_idpet, now(), null, 0);
+(3,3,50),
+(3,4,-10),
+(3,5,5),
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    values ((select max(idsession) from sessions), now(), 50, 50, 50, 50, 80);
+(4,1,-10),
+(4,4,50),
+(4,5,10);
 
-    insert into sessionresults (idsession, felicidad_promedio, duracion_total, estado_final)
-    values ((select max(idsession) from sessions), 0, 0, 'jugando');
+INSERT INTO Events(nombre,descripcion)
+VALUES
+('Se enferma','Disminuye la salud'),
+('Encuentra juguete','Aumenta la diversion'),
+('Se ensucia','Disminuye la higiene'),
+('Visita al veterinario','Mejora la salud');
 
-    select max(idsession) as idsession from sessions;
-end //
-delimiter ;
+INSERT INTO Sessions(IDplayer,IDpet,inicio,fin,duracion)
+VALUES
+(1,1,'2026-08-05 10:00:00','2026-08-05 12:00:00',120),
+(2,2,'2026-08-05 14:00:00','2026-08-05 15:30:00',90);
 
-delimiter //
-create procedure sp_alimentar(in p_idsession int)
-begin
-    insert into actionlogs (idsession, idaction, timestamp)
-    values (p_idsession, 1, now());
+INSERT INTO PetStateLogs(
+    IDsession,
+    timestamp,
+    hambre,
+    diversion,
+    higiene,
+    energia,
+    salud
+)
+VALUES
+(1,'2026-08-05 10:00:00',50,50,50,50,80),
+(2,'2026-08-05 14:00:00',50,50,50,50,80);
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre - 30, diversion, higiene, energia, salud + 10
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+INSERT INTO SessionResults(
+    IDsession,
+    felicidad_promedio,
+    duracion_total,
+    estado_final
+)
+VALUES
+(1,75,120,'Feliz'),
+(2,60,90,'Cansado');
 
-delimiter //
-create procedure sp_jugar(in p_idsession int)
-begin
-    insert into actionlogs (idsession, idaction, timestamp)
-    values (p_idsession, 2, now());
+DELIMITER //
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre + 10, diversion + 40, higiene - 10, energia - 20, salud + 5
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+CREATE PROCEDURE sp_iniciarsesion(
+    IN p_idplayer INT,
+    IN p_idpet INT
+)
+BEGIN
 
-delimiter //
-create procedure sp_asear(in p_idsession int)
-begin
-    insert into actionlogs (idsession, idaction, timestamp)
-    values (p_idsession, 3, now());
+    INSERT INTO Sessions(
+        IDplayer,
+        IDpet,
+        inicio,
+        fin,
+        duracion
+    )
+    VALUES(
+        p_idplayer,
+        p_idpet,
+        NOW(),
+        NULL,
+        0
+    );
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre, diversion, higiene + 50, energia - 10, salud + 5
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+    INSERT INTO PetStateLogs(
+        IDsession,
+        timestamp,
+        hambre,
+        diversion,
+        higiene,
+        energia,
+        salud
+    )
+    VALUES(
+        LAST_INSERT_ID(),
+        NOW(),
+        50,
+        50,
+        50,
+        50,
+        80
+    );
 
-delimiter //
-create procedure sp_dormir(in p_idsession int)
-begin
-    insert into actionlogs (idsession, idaction, timestamp)
-    values (p_idsession, 4, now());
+    SELECT
+        LAST_INSERT_ID() AS NuevaSesion,
+        p_idplayer AS Jugador,
+        p_idpet AS Mascota;
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre - 10, diversion, higiene, energia + 50, salud + 10
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+END //
 
-delimiter //
-create procedure sp_pasartiempo(in p_idsession int)
-begin
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre + 5, diversion - 5, higiene - 3, energia - 4, salud
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+DELIMITER ;
 
-delimiter //
-create procedure sp_enfermar(in p_idsession int)
-begin
-    insert into eventlogs (idsession, idevent, timestamp)
-    values (p_idsession, 1, now());
+DELIMITER //
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre, diversion, higiene, energia, salud - 30
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+CREATE PROCEDURE sp_alimentar(
+    IN p_idsession INT,
+    IN p_porciones INT
+)
+BEGIN
 
-delimiter //
-create procedure sp_encontrarjuguete(in p_idsession int)
-begin
-    insert into eventlogs (idsession, idevent, timestamp)
-    values (p_idsession, 2, now());
+    INSERT INTO ActionLogs(
+        IDsession,
+        IDaction,
+        timestamp
+    )
+    VALUES(
+        p_idsession,
+        1,
+        NOW()
+    );
 
-    insert into petstatelogs (idsession, timestamp, hambre, diversion, higiene, energia, salud)
-    select p_idsession, now(), hambre, diversion + 20, higiene, energia, salud
-    from petstatelogs
-    where idsession = p_idsession
-    order by idlog desc limit 1;
-end //
-delimiter ;
+    INSERT INTO PetStateLogs(
+        IDsession,
+        timestamp,
+        hambre,
+        diversion,
+        higiene,
+        energia,
+        salud
+    )
+    SELECT
+        p_idsession,
+        NOW(),
+        hambre - (30 * p_porciones),
+        diversion,
+        higiene,
+        energia + (5 * p_porciones),
+        salud + (10 * p_porciones)
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
 
-delimiter //
-create procedure sp_estadisticas()
-begin
-    select count(*) as total_sesiones, avg(felicidad_promedio) as promedio_felicidad
-    from sessionresults;
-end //
-delimiter ;
+    SELECT *
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_jugar(
+    IN p_idsession INT,
+    IN p_minutos INT
+)
+BEGIN
+
+    INSERT INTO ActionLogs(
+        IDsession,
+        IDaction,
+        timestamp
+    )
+    VALUES(
+        p_idsession,
+        2,
+        NOW()
+    );
+
+    INSERT INTO PetStateLogs(
+        IDsession,
+        timestamp,
+        hambre,
+        diversion,
+        higiene,
+        energia,
+        salud
+    )
+    SELECT
+        p_idsession,
+        NOW(),
+        hambre + (p_minutos / 3),
+        diversion + p_minutos,
+        higiene - (p_minutos / 4),
+        energia - (p_minutos / 2),
+        salud + 5
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+    SELECT *
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_asear(
+    IN p_idsession INT,
+    IN p_intensidad INT
+)
+BEGIN
+
+    INSERT INTO ActionLogs(
+        IDsession,
+        IDaction,
+        timestamp
+    )
+    VALUES(
+        p_idsession,
+        3,
+        NOW()
+    );
+
+    INSERT INTO PetStateLogs(
+        IDsession,
+        timestamp,
+        hambre,
+        diversion,
+        higiene,
+        energia,
+        salud
+    )
+    SELECT
+        p_idsession,
+        NOW(),
+        hambre,
+        diversion,
+        higiene + (50 * p_intensidad),
+        energia - (10 * p_intensidad),
+        salud + (5 * p_intensidad)
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+    SELECT *
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_dormir(
+    IN p_idsession INT,
+    IN p_horas INT
+)
+BEGIN
+
+    INSERT INTO ActionLogs(
+        IDsession,
+        IDaction,
+        timestamp
+    )
+    VALUES(
+        p_idsession,
+        4,
+        NOW()
+    );
+
+    INSERT INTO PetStateLogs(
+        IDsession,
+        timestamp,
+        hambre,
+        diversion,
+        higiene,
+        energia,
+        salud
+    )
+    SELECT
+        p_idsession,
+        NOW(),
+        hambre - (10 * p_horas),
+        diversion,
+        higiene,
+        energia + (50 * p_horas),
+        salud + (10 * p_horas)
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+    SELECT *
+    FROM PetStateLogs
+    WHERE IDsession = p_idsession
+    ORDER BY IDlog DESC
+    LIMIT 1;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_buscarjugador(
+    IN p_nombre VARCHAR(50),
+    IN p_email VARCHAR(100)
+)
+BEGIN
+
+    SELECT *
+    FROM Players
+    WHERE nombre = p_nombre
+       OR email = p_email;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_buscarmascota(
+    IN p_tipo VARCHAR(30),
+    IN p_fecha DATE
+)
+BEGIN
+
+    SELECT *
+    FROM Pets
+    WHERE tipo = p_tipo
+    AND fecha_creacion >= p_fecha;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_buscarevento(
+    IN p_nombre VARCHAR(50),
+    IN p_descripcion VARCHAR(100)
+)
+BEGIN
+
+    SELECT *
+    FROM Events
+    WHERE nombre = p_nombre
+       OR descripcion = p_descripcion;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_sesionesmascota(
+    IN p_idpet INT,
+    IN p_duracion INT
+)
+BEGIN
+
+    SELECT *
+    FROM Sessions
+    WHERE IDpet = p_idpet
+    AND duracion >= p_duracion;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_veracciones(
+    IN p_idsession INT,
+    IN p_idaction INT
+)
+BEGIN
+
+    SELECT
+        al.IDlog,
+        a.nombre,
+        al.timestamp
+    FROM ActionLogs al
+    INNER JOIN ActionTypes a
+        ON al.IDaction = a.IDaction
+    WHERE al.IDsession = p_idsession
+    AND al.IDaction = p_idaction;
+
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_estadisticas(
+    IN p_estado VARCHAR(30),
+    IN p_felicidad INT,
+    IN p_duracion INT
+)
+BEGIN
+
+    SELECT *
+    FROM SessionResults
+    WHERE estado_final = p_estado
+    AND felicidad_promedio >= p_felicidad
+    AND duracion_total >= p_duracion;
+
+END //
+
+DELIMITER ;
