@@ -502,6 +502,7 @@ CREATE PROCEDURE sp_veracciones(
 BEGIN
 
     SELECT
+    -- al=(A)ction(L)ogs
         al.IDlog,
         a.nombre,
         al.timestamp
