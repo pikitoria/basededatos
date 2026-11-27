@@ -1,0 +1,176 @@
+// Game1.cs - logica + conexion a MySQL + llama a Visual
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace MascotaVirtual
+{
+    public class Game1 : Game
+    {
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+        SpriteFont letra;
+        Texture2D cuadrado;
+        Visual visual;
+
+        Mascota mascota = new Mascota("firulais");
+        Estructuras datos = new Estructuras();
+        Guardado guardado = new Guardado();
+        Algoritmos algoritmos = new Algoritmos();
+
+        float tiempo = 0, tiempoAccesorio = 0;
+        int accesorio = -1, salto = 0;
+        int idJugador = 0, idMascota = 0;
+        string mensaje = "cuida a firulais!";
+        string pantalla = "juego";
+
+        Rectangle botonAlimentar = new Rectangle(20, 350, 150, 40);
+        Rectangle botonJugar = new Rectangle(190, 350, 150, 40);
+        Rectangle botonAsear = new Rectangle(360, 350, 150, 40);
+        Rectangle botonDormir = new Rectangle(530, 350, 150, 40);
+        KeyboardState teclaAnterior;
+        MouseState mouseAnterior;
+
+        public Game1()
+        {
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
+
+        protected override void Initialize()
+        {
+            graphics.PreferredBackBufferWidth = 700;
+            graphics.PreferredBackBufferHeight = 450;
+            graphics.ApplyChanges();
+            // CONEXION MYSQL: crea jugador + mascota al arrancar
+            idJugador = guardado.CrearJugador("jugador1");
+            idMascota = guardado.CrearMascota(idJugador, "firulais");
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            letra = Content.Load<SpriteFont>("letra");
+            cuadrado = new Texture2D(GraphicsDevice, 1, 1);
+            cuadrado.SetData(new Color[] { Color.White });
+            visual = new Visual(spriteBatch, letra, cuadrado);
+        }
+
+        void HacerAccion(int id)
+        {
+            mascota.hambre += datos.efectos[id, 0];
+            mascota.diversion += datos.efectos[id, 1];
+            mascota.higiene += datos.efectos[id, 2];
+            mascota.energia += datos.efectos[id, 3];
+            mascota.salud += datos.efectos[id, 4];
+            mascota.Limitar();
+
+            datos.historial.Push(datos.acciones[id]);
+            datos.logs.AddLast(datos.acciones[id]);
+            guardado.GuardarTxt(datos.acciones[id]);
+
+            // GUARDA EN MYSQL
+            guardado.GuardarAccion(idMascota, datos.acciones[id]);
+            guardado.ActualizarMascota(mascota, idMascota);
+            if (id == 0) mensaje = guardado.LlamarAlimentar(idMascota);
+            else mensaje = "hiciste: " + datos.acciones[id];
+
+            accesorio = id; tiempoAccesorio = 2;
+            if (id == 1) salto = 15;
+            if (mascota.salud <= 0) { pantalla = "fin"; mensaje = "firulais murio..."; }
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
+            if (pantalla == "fin")
+            {
+                if (Keyboard.GetState().IsKeyDown(Keys.R))
+                { mascota = new Mascota("firulais"); pantalla = "juego"; mensaje = "de nuevo!"; }
+                base.Update(gameTime); return;
+            }
+
+            tiempo += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (tiempo > 5)
+            {
+                tiempo = 0;
+                mascota.hambre += 5; mascota.diversion -= 5;
+                mascota.higiene -= 3; mascota.energia -= 4;
+                if (mascota.hambre >= 90 || mascota.higiene <= 10) mascota.salud -= 10;
+                mascota.Limitar();
+                guardado.ActualizarMascota(mascota, idMascota);
+                if (mascota.salud <= 0) { pantalla = "fin"; mensaje = "firulais murio..."; }
+            }
+
+            if (tiempoAccesorio > 0)
+            {
+                tiempoAccesorio -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (tiempoAccesorio <= 0) accesorio = -1;
+            }
+            if (salto > 0) salto--;
+
+            KeyboardState tecla = Keyboard.GetState();
+            if (tecla.IsKeyDown(Keys.D1) && teclaAnterior.IsKeyUp(Keys.D1)) HacerAccion(0);
+            if (tecla.IsKeyDown(Keys.D2) && teclaAnterior.IsKeyUp(Keys.D2)) HacerAccion(1);
+            if (tecla.IsKeyDown(Keys.D3) && teclaAnterior.IsKeyUp(Keys.D3)) HacerAccion(2);
+            if (tecla.IsKeyDown(Keys.D4) && teclaAnterior.IsKeyUp(Keys.D4)) HacerAccion(3);
+            teclaAnterior = tecla;
+
+            MouseState mouse = Mouse.GetState();
+            if (mouse.LeftButton == ButtonState.Pressed && mouseAnterior.LeftButton == ButtonState.Released)
+            {
+                Point p = new Point(mouse.X, mouse.Y);
+                if (botonAlimentar.Contains(p)) HacerAccion(0);
+                if (botonJugar.Contains(p)) HacerAccion(1);
+                if (botonAsear.Contains(p)) HacerAccion(2);
+                if (botonDormir.Contains(p)) HacerAccion(3);
+            }
+            mouseAnterior = mouse;
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(visual.ColorFondo(mascota.Estado(), accesorio));
+            spriteBatch.Begin();
+            if (pantalla == "fin")
+            {
+                spriteBatch.DrawString(letra, "fin del juego", new Vector2(200, 150), Color.White);
+                spriteBatch.DrawString(letra, mensaje, new Vector2(200, 200), Color.White);
+                spriteBatch.DrawString(letra, "apreta R para jugar de nuevo", new Vector2(200, 250), Color.Yellow);
+                spriteBatch.End(); base.Draw(gameTime); return;
+            }
+
+            spriteBatch.DrawString(letra, "mascota: " + mascota.nombre, new Vector2(20, 20), Color.White);
+            spriteBatch.DrawString(letra, "estado: " + mascota.Estado(), new Vector2(20, 50), Color.White);
+            spriteBatch.Draw(cuadrado, new Rectangle(20, 75, 400, 30), Color.Yellow);
+            spriteBatch.DrawString(letra, mensaje, new Vector2(30, 80), Color.Black);
+
+            spriteBatch.DrawString(letra, "hambre: " + mascota.hambre, new Vector2(20, 120), Color.White);
+            visual.DibujarBarra(150, 120, mascota.hambre, Color.Red);
+            spriteBatch.DrawString(letra, "diversion: " + mascota.diversion, new Vector2(20, 150), Color.White);
+            visual.DibujarBarra(150, 150, mascota.diversion, Color.Green);
+            spriteBatch.DrawString(letra, "higiene: " + mascota.higiene, new Vector2(20, 180), Color.White);
+            visual.DibujarBarra(150, 180, mascota.higiene, Color.Cyan);
+            spriteBatch.DrawString(letra, "energia: " + mascota.energia, new Vector2(20, 210), Color.White);
+            visual.DibujarBarra(150, 210, mascota.energia, Color.Orange);
+            spriteBatch.DrawString(letra, "salud: " + mascota.salud, new Vector2(20, 240), Color.White);
+            visual.DibujarBarra(150, 240, mascota.salud, Color.Pink);
+
+            visual.DibujarTodo(mascota, accesorio, salto);
+
+            spriteBatch.Draw(cuadrado, botonAlimentar, Color.Red);
+            spriteBatch.Draw(cuadrado, botonJugar, Color.Green);
+            spriteBatch.Draw(cuadrado, botonAsear, Color.Blue);
+            spriteBatch.Draw(cuadrado, botonDormir, Color.Purple);
+            spriteBatch.DrawString(letra, "1-Comer", new Vector2(30, 360), Color.White);
+            spriteBatch.DrawString(letra, "2-Jugar", new Vector2(200, 360), Color.White);
+            spriteBatch.DrawString(letra, "3-Asear", new Vector2(370, 360), Color.White);
+            spriteBatch.DrawString(letra, "4-Dormir", new Vector2(540, 360), Color.White);
+            spriteBatch.End();
+            base.Draw(gameTime);
+        }
+    }
+}
