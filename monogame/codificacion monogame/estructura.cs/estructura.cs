@@ -1,25 +1,31 @@
-using System;
+
+// Estructuras.cs - array 1d, array 2d, pila, cola, lista enlazada
+using System.Collections.Generic;
 
 namespace MascotaVirtual
 {
     public class Estructuras
     {
-        public string[] acciones = new string[4] { "alimentar", "jugar", "asear", "dormir" };
+        // array 1d
+        public string[] acciones = { "alimentar", "jugar", "asear", "dormir" };
 
-        public int[,] efectos = new int[4, 5]
-        {
-            { -30, 0, 0, 0, 10 }, // alimentar
+        // array 2d: fila = accion, columna = hambre, diversion, higiene, energia, salud
+        public int[,] efectos = {
+            { -30, 0, 0, 0, 10 },    // alimentar
             { 10, 40, -10, -20, 5 }, // jugar
-            { 0, 0, 50, -10, 5 }, // asear
-            { -10, 0, 0, 50, 10 } // dormir
-        };
+            { 0, 0, 50, -10, 5 },    // asear
+            { -10, 0, 0, 50, 10 } }; // dormir
 
-        // Historial de acciones: arreglo de 10 espacios
-        public string[] historial = new string[10];
-        public int cantidadHistorial = 0;
+        // pila: ultimo que entra, primero que sale
+        public Stack<string> historial = new Stack<string>();
+        // cola: primero que entra, primero que sale
+        public Queue<string> eventos = new Queue<string>();
+        // lista enlazada
+        public LinkedList<string> logs = new LinkedList<string>();
+    }
+}
 
-        // Eventos de la mascota: arreglo de 10 espacios
-        public string[] eventos = new string[10];
+
         public int cantidadEventos = 0;
 
         // Registro de lo que pasa en el juego: arreglo de 10 espacios
