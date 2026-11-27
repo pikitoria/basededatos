@@ -1,4 +1,3 @@
-
 // Algoritmos.cs - busquedas, ordenamiento y recursion
 namespace MascotaVirtual
 {
