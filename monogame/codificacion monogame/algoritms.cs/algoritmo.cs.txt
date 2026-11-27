@@ -1,0 +1,101 @@
+using System;
+
+namespace MascotaVirtual
+{
+    public class Algoritmos
+    {
+        // busqueda secuencial = mira uno por uno
+        // complejidad: o(n), si hay 100 mascotas, mira 100
+        public int BuscarSecuencial(string[] nombres, string buscar)
+        {
+            for (int i = 0; i < nombres.Length; i++)
+            {
+                if (nombres[i] == buscar)
+                {
+                    return i; // lo encontro, devuelve la posicion
+                }
+            }
+            return -1; // -1 = no lo encontro
+        }
+
+        // busqueda binaria = solo sirve si esta ordenado
+        // mira el del medio, si es mas chico va a la derecha, si no a la izquierda
+        // complejidad: o(log n), mucho mas rapido
+        public int BuscarBinaria(int[] numeros, int buscar)
+        {
+            int inicio = 0;
+            int fin = numeros.Length - 1;
+
+            while (inicio <= fin)
+            {
+                int medio = (inicio + fin) / 2;
+                if (numeros[medio] == buscar) return medio;
+                if (numeros[medio] < buscar) inicio = medio + 1;
+                else fin = medio - 1;
+            }
+            return -1;
+        }
+
+        // ordenamiento burbuja = compara de a dos y los cambia
+        // complejidad: o(n2), lento pero facil de entender
+        public void Burbuja(int[] numeros)
+        {
+            for (int i = 0; i < numeros.Length - 1; i++)
+            {
+                for (int j = 0; j < numeros.Length - 1 - i; j++)
+                {
+                    if (numeros[j] > numeros[j + 1])
+                    {
+                        int aux = numeros[j];
+                        numeros[j] = numeros[j + 1];
+                        numeros[j + 1] = aux;
+                    }
+                }
+            }
+        }
+
+        // ordenamiento por insercion = agarra uno y lo mete donde va
+        // complejidad: o(n2)
+        public void Insercion(int[] numeros)
+        {
+            for (int i = 1; i < numeros.Length; i++)
+            {
+                int aux = numeros[i];
+                int j = i - 1;
+                while (j >= 0 && numeros[j] > aux)
+                {
+                    numeros[j + 1] = numeros[j];
+                    j--;
+                }
+                numeros[j + 1] = aux;
+            }
+        }
+
+        // ordenamiento por seleccion = busca el mas chico y lo pone primero
+        // complejidad: o(n2)
+        public void Seleccion(int[] numeros)
+        {
+            for (int i = 0; i < numeros.Length - 1; i++)
+            {
+                int menor = i;
+                for (int j = i + 1; j < numeros.Length; j++)
+                {
+                    if (numeros[j] < numeros[menor]) menor = j;
+                }
+                int aux = numeros[i];
+                numeros[i] = numeros[menor];
+                numeros[menor] = aux;
+            }
+        }
+
+        // recursion = la funcion se llama a si misma
+        // aca calcula felicidad total sumando, como ejemplo
+        // caso base = cuando llega a 0, frena. si no frena, se cuelga
+        // complejidad: o(n), usa memoria por cada llamada
+        public int SumarFelicidad(int[] felicidades, int n)
+        {
+            if (n <= 0) return 0; // caso base
+            return felicidades[n - 1] + SumarFelicidad(felicidades, n - 1); // se llama a si misma
+        }
+    }
+}
