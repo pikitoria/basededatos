@@ -1,3 +1,4 @@
+// Guardado.cs - TXT + MySQL con MySqlConnector
 using System;
 using System.IO;
 using MySqlConnector;
