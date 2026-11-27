@@ -1,0 +1,99 @@
+
+using System;
+using MySql.Data.MySqlClient;
+
+namespace MascotaVirtual
+{
+    public class BaseDatos
+    {
+        // connectionstring = donde esta la base, usuario y contraseña
+        string conexion = "server=localhost;database=mascotavirtual;user=root;password=1234;";
+
+        // create = insertar jugador
+        public void InsertarJugador(string nombre, string email)
+        {
+            using (MySqlConnection con = new MySqlConnection(conexion))
+            {
+                con.Open();
+                // @nombre = parametro, asi no hay inyeccion sql
+                string sql = "insert into players (nombre, email) values (@nombre, @email)";
+                using (MySqlCommand cmd = new MySqlCommand(sql, con))
+                {
+                    cmd.Parameters.AddWithValue("@nombre", nombre);
+                    cmd.Parameters.AddWithValue("@email", email);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // read = leer mascotas, con join
+        public void LeerMascotas()
+        {
+            using (MySqlConnection con = new MySqlConnection(conexion))
+            {
+                con.Open();
+                // inner join = junta players con pets
+                string sql = "select players.nombre as jugador, pets.nombre as mascota from players inner join pets on pets.idplayer = players.idplayer";
+                using (MySqlCommand cmd = new MySqlCommand(sql, con))
+                {
+                    using (MySqlDataReader lector = cmd.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            Console.WriteLine(lector["jugador"] + " - " + lector["mascota"]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // update = cambiar nombre
+        public void CambiarNombreMascota(int id, string nuevo)
+        {
+            using (MySqlConnection con = new MySqlConnection(conexion))
+            {
+                con.Open();
+                string sql = "update pets set nombre = @nuevo where idpet = @id";
+                using (MySqlCommand cmd = new MySqlCommand(sql, con))
+                {
+                    cmd.Parameters.AddWithValue("@nuevo", nuevo);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // delete = borrar
+        public void BorrarSesion(int id)
+        {
+            using (MySqlConnection con = new MySqlConnection(conexion))
+            {
+                con.Open();
+                string sql = "delete from sessions where idsession = @id";
+                using (MySqlCommand cmd = new MySqlCommand(sql, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // llamar a un store procedure, sp = stored procedure
+        // call = llama al procedimiento que ya esta en mysql
+        public string LlamarAlimentar(int idsesion)
+        {
+            using (MySqlConnection con = new MySqlConnection(conexion))
+            {
+                con.Open();
+                using (MySqlCommand cmd = new MySqlCommand("call sp_alimentar(@id, @mensaje)", con))
+                {
+                    cmd.Parameters.AddWithValue("@id", idsesion);
+                    // out = sale, asi recibo el mensaje
+                    cmd.Parameters.Add("@mensaje", MySqlDbType.VarChar, 100).Direction = System.Data.ParameterDirection.Output;
+                    cmd.ExecuteNonQuery();
+                    return cmd.Parameters["@mensaje"].Value.ToString();
+                }
+            }
+        }
+    }
+}
