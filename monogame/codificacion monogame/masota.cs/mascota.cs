@@ -1,3 +1,5 @@
+// Mascota.cs - registro + estado
+// el Estado() es lo que usa Visual.cs para cambiar la cara
 using System;
 
 namespace MascotaVirtual
@@ -5,27 +7,15 @@ namespace MascotaVirtual
     public struct Mascota
     {
         public string nombre;
-        public string tipo;
-        public int hambre;
-        public int diversion;
-        public int higiene;
-        public int energia;
-        public int salud;
+        public int hambre, diversion, higiene, energia, salud;
 
-        // constructor = como nace la mascota, con todo en 50
-        public Mascota(string miNombre, string miTipo)
+        public Mascota(string n)
         {
-            nombre = miNombre;
-            tipo = miTipo;
-            hambre = 50;
-            diversion = 50;
-            higiene = 50;
-            energia = 50;
-            salud = 80;
+            nombre = n;
+            hambre = 50; diversion = 50;
+            higiene = 50; energia = 50; salud = 80;
         }
 
-        // esto es para que no se pase de 0 a 100
-        // math.clamp = lo deja entre 0 y 100
         public void Limitar()
         {
             hambre = Math.Clamp(hambre, 0, 100);
@@ -35,13 +25,17 @@ namespace MascotaVirtual
             salud = Math.Clamp(salud, 0, 100);
         }
 
-        // estado de animo segun los numeros
         public string Estado()
         {
             if (salud <= 0) return "muerto";
             if (salud < 30) return "enfermo";
             if (diversion < 30) return "triste";
+            if (hambre > 80) return "hambriento";
+            if (higiene < 30) return "sucio";
+            if (energia < 30) return "cansado";
             return "feliz";
         }
     }
 }
+
+
